@@ -130,8 +130,13 @@ no content collections yet. `astro check` and `astro build` both pass
 clean; `npm run dev` confirmed working via screenshot and a scripted
 interaction test (filter, accordion, form submit all functional).
 
+Hero now shows a real profile photo (`src/assets/oubaid-profile.jpg`,
+cropped to the design's 4:5 aspect ratio) instead of the mockup's
+placeholder card, wired through `astro:assets` for build-time WebP
+optimization.
+
 Repo pushed to GitHub (`Oubaid-Beldi/oubaid-edits`) for version control
-only — not connected to any hosting provider.
+only — not connected to any hosting provider. Latest commit: `8ac647c`.
 
 **Not yet started:** Astro Content Collections (`src/content/config.ts` +
 the seven collections from the Data model), Sveltia CMS (`admin/`), real

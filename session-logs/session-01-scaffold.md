@@ -55,6 +55,14 @@ No content collections, no CMS, no Formspree wiring, no deploy this session.
   path; a pre-existing empty `doc/session-logs.md` was left untouched since
   it wasn't part of the requested structure and deleting other files felt
   out of scope for this session).
+- Real profile photo added to the hero: found a headshot in the user's
+  Downloads folder, cropped it to the design's 4:5 aspect ratio with
+  content-aware framing (via `sharp`), saved to
+  `src/assets/oubaid-profile.jpg`, and wired it into `Hero.astro` via
+  Astro's built-in `astro:assets` `<Image>` component (build-time
+  optimization to WebP). Replaced the placeholder `[ Photo of Oubaid ]`
+  label and the decorative diagonal-stripe overlay, which only existed to
+  dress up the empty placeholder.
 
 ## Decisions / tradeoffs
 
@@ -86,6 +94,18 @@ No content collections, no CMS, no Formspree wiring, no deploy this session.
   the mockup and that the ported JS behaviors actually work. Playwright was
   installed only in the session scratchpad, not added to the project's
   `package.json`.
+- **Profile photo source and crop:** no photo was attached in-conversation,
+  so the Downloads folder was searched for a recent image; a professional
+  headshot (`WhatsApp Image 2026-08-12...jpeg`, 900×1600) was the only
+  plausible match among a few unrelated files (a logo, stock photos, a
+  dental reference image) and was confirmed visually before using it.
+  Cropped with `sharp`'s attention-based (saliency) strategy rather than a
+  plain center-crop, so the face stays framed correctly when going from a
+  9:16 source to the design's 4:5 card. First attempt rendered blank in the
+  screenshot check because Astro's `<Image>` defaults to `loading="lazy"`
+  and the headless screenshot ran before the browser decided to fetch it;
+  switched to `loading="eager"` since it's an above-the-fold hero image
+  anyway (also better for LCP).
 
 ## Deviations from the build plan
 
