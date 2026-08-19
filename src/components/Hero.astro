@@ -1,0 +1,195 @@
+---
+const niches = ["Cosmetic Dentistry", "Meta Ads", "Talking Heads", "Podcast", "Testimonials"];
+---
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">Freelance Video Editor</div>
+      <h1>Video edits that turn <span>viewers into clients.</span></h1>
+      <p class="hero-sub">
+        I'm Oubaid — I edit short and long-form video for dentists, agencies, podcasters, and
+        brands who need content that actually converts.
+      </p>
+      <div class="hero-ctas">
+        <a href="#work" class="btn-primary">See my work</a>
+        <a href="#contact" class="btn-ghost">Book a call</a>
+      </div>
+      <div class="hero-niches">
+        {niches.map((niche) => <span class="niche-chip">{niche}</span>)}
+      </div>
+    </div>
+    <div class="hero-photo">
+      <div class="photo-card"><span class="ph-label">[ Photo of Oubaid ]</span></div>
+      <div class="float-badge">
+        <div class="num">50+</div>
+        <div class="lbl">Projects<br />delivered</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: 90px 0 70px;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: -160px;
+    right: -160px;
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, var(--blue-100) 0%, rgba(232, 240, 254, 0) 70%);
+    z-index: 0;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 56px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--blue-100);
+    color: var(--blue-700);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
+    margin-bottom: 22px;
+  }
+  .kicker::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue-600);
+  }
+  h1 {
+    font-size: 52px;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    margin: 0 0 22px;
+    font-weight: 800;
+  }
+  h1 span {
+    color: var(--blue-600);
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin: 0 0 34px;
+    max-width: 480px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 38px;
+  }
+  .btn-ghost {
+    border: 1.5px solid var(--line);
+    background: #fff;
+    padding: 13px 22px;
+    border-radius: var(--radius-btn);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .btn-primary {
+    background: var(--blue-600);
+    color: #fff;
+    padding: 13px 24px;
+    border-radius: var(--radius-btn);
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 8px 20px rgba(26, 86, 219, 0.28);
+  }
+  .hero-niches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .niche-chip {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: var(--white);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+  }
+
+  .hero-photo {
+    position: relative;
+  }
+  .photo-card {
+    aspect-ratio: 4 / 5;
+    border-radius: 24px;
+    background: linear-gradient(150deg, #c7d8fb, #e8f0fe 60%, #ffffff);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(11, 26, 51, 0.25);
+  }
+  .photo-card .ph-label {
+    color: var(--blue-700);
+    font-weight: 700;
+    font-size: 14px;
+    opacity: 0.6;
+  }
+  .photo-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.5) 0px,
+      rgba(255, 255, 255, 0.5) 1px,
+      transparent 1px,
+      transparent 40px
+    );
+  }
+  .float-badge {
+    position: absolute;
+    bottom: -18px;
+    left: -18px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 20px 40px -15px rgba(11, 26, 51, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .float-badge .num {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--blue-600);
+  }
+  .float-badge .lbl {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    h1 {
+      font-size: 38px;
+    }
+  }
+</style>

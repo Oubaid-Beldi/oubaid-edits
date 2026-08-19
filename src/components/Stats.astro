@@ -1,0 +1,53 @@
+---
+const stats = [
+  { num: "50", suffix: "+", label: "Projects delivered" },
+  { num: "12", suffix: "", label: "Niches served" },
+  { num: "3.2", suffix: "M", label: "Views generated" },
+  { num: "48", suffix: "h", label: "Avg. turnaround" },
+];
+---
+
+<section>
+  <div class="wrap">
+    <div class="stats-band">
+      {stats.map((stat) => (
+        <div>
+          <div class="stat-num"><span>{stat.num}</span>{stat.suffix}</div>
+          <div class="stat-lbl">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats-band {
+    background: var(--blue-900);
+    border-radius: 24px;
+    padding: 52px 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    color: #fff;
+  }
+  .stat-num {
+    font-size: 38px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .stat-num span {
+    color: #7fa6f6;
+  }
+  .stat-lbl {
+    font-size: 13.5px;
+    color: #b7c4e0;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 900px) {
+    .stats-band {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

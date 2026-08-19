@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oubaid Edits — Mockup 1: Cinematic Light</title>
+<style>
+  :root{
+    --blue-900:#0b1a33;
+    --blue-700:#12409e;
+    --blue-600:#1a56db;
+    --blue-500:#2563eb;
+    --blue-100:#e8f0fe;
+    --blue-50:#f4f8ff;
+    --ink:#0d1526;
+    --ink-soft:#4b5568;
+    --paper:#f7f8fb;
+    --white:#ffffff;
+    --line:#e3e7ef;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+  .tag-note{
+    position:fixed;bottom:14px;right:14px;z-index:999;
+    background:var(--ink);color:#fff;font-size:11px;letter-spacing:.04em;
+    padding:8px 12px;border-radius:999px;opacity:.85;font-weight:600;
+  }
+
+  /* NAV */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(247,248,251,.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;}
+  .logo{font-weight:800;font-size:19px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;}
+  .logo .dot{width:9px;height:9px;background:var(--blue-600);border-radius:2px;transform:rotate(45deg);}
+  nav ul{list-style:none;display:flex;gap:32px;margin:0;padding:0;}
+  nav ul a{font-size:14.5px;font-weight:600;color:var(--ink-soft);transition:color .15s;}
+  nav ul a:hover{color:var(--blue-600);}
+  .cta-btn{
+    background:var(--blue-600);color:#fff;padding:11px 20px;border-radius:10px;
+    font-weight:700;font-size:14px;box-shadow:0 6px 16px rgba(26,86,219,.25);
+    transition:transform .15s, box-shadow .15s;
+  }
+  .cta-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(26,86,219,.35);}
+  .mobile-toggle{display:none;background:none;border:none;font-size:22px;cursor:pointer;}
+
+  /* HERO */
+  .hero{position:relative;overflow:hidden;padding:90px 0 70px;}
+  .hero::before{
+    content:"";position:absolute;top:-160px;right:-160px;width:520px;height:520px;
+    background:radial-gradient(circle, var(--blue-100) 0%, rgba(232,240,254,0) 70%);
+    z-index:0;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center;position:relative;z-index:1;}
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;background:var(--blue-100);color:var(--blue-700);
+    font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:7px 14px;border-radius:999px;margin-bottom:22px;
+  }
+  .kicker::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue-600);}
+  h1{font-size:52px;line-height:1.06;letter-spacing:-.03em;margin:0 0 22px;font-weight:800;}
+  h1 span{color:var(--blue-600);}
+  .hero-sub{font-size:18px;color:var(--ink-soft);margin:0 0 34px;max-width:480px;}
+  .hero-ctas{display:flex;gap:14px;margin-bottom:38px;}
+  .btn-ghost{
+    border:1.5px solid var(--line);background:#fff;padding:13px 22px;border-radius:10px;font-weight:700;font-size:15px;
+  }
+  .btn-primary{
+    background:var(--blue-600);color:#fff;padding:13px 24px;border-radius:10px;font-weight:700;font-size:15px;
+    box-shadow:0 8px 20px rgba(26,86,219,.28);
+  }
+  .hero-niches{display:flex;flex-wrap:wrap;gap:10px;}
+  .niche-chip{font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--white);border:1px solid var(--line);padding:6px 12px;border-radius:999px;}
+
+  .hero-photo{position:relative;}
+  .photo-card{
+    aspect-ratio:4/5;border-radius:24px;
+    background:linear-gradient(150deg,#c7d8fb,#e8f0fe 60%, #ffffff);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(11,26,51,.25);
+  }
+  .photo-card .ph-label{color:var(--blue-700);font-weight:700;font-size:14px;opacity:.6;}
+  .photo-card::after{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,.5) 0px, rgba(255,255,255,.5) 1px, transparent 1px, transparent 40px);
+  }
+  .float-badge{
+    position:absolute;bottom:-18px;left:-18px;background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:14px 18px;box-shadow:0 20px 40px -15px rgba(11,26,51,.25);
+    display:flex;align-items:center;gap:12px;
+  }
+  .float-badge .num{font-size:22px;font-weight:800;color:var(--blue-600);}
+  .float-badge .lbl{font-size:11.5px;color:var(--ink-soft);font-weight:600;}
+
+  section{padding:88px 0;}
+  .section-head{max-width:620px;margin-bottom:48px;}
+  .eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-600);margin-bottom:12px;}
+  h2{font-size:36px;letter-spacing:-.02em;margin:0 0 12px;font-weight:800;}
+  .section-sub{color:var(--ink-soft);font-size:16px;margin:0;}
+
+  /* WORK / FILTER */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px;}
+  .filter-btn{
+    border:1.5px solid var(--line);background:#fff;padding:9px 18px;border-radius:999px;
+    font-weight:700;font-size:13.5px;cursor:pointer;color:var(--ink-soft);transition:all .15s;
+  }
+  .filter-btn.active,.filter-btn:hover{background:var(--blue-600);border-color:var(--blue-600);color:#fff;}
+  .work-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .work-card{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    transition:transform .2s, box-shadow .2s;cursor:pointer;
+  }
+  .work-card:hover{transform:translateY(-5px);box-shadow:0 24px 44px -20px rgba(11,26,51,.28);}
+  .thumb{
+    aspect-ratio:16/9;position:relative;
+    background:linear-gradient(135deg,var(--blue-900),var(--blue-700));
+    display:flex;align-items:center;justify-content:center;
+  }
+  .thumb .play{
+    width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .thumb .play::before{content:"";border-style:solid;border-width:8px 0 8px 13px;border-color:transparent transparent transparent var(--blue-600);margin-left:3px;}
+  .work-meta{padding:16px 18px;}
+  .work-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--blue-600);margin-bottom:6px;display:block;}
+  .work-title{font-weight:700;font-size:15.5px;}
+
+  /* PROCESS */
+  .process-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .process-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;position:relative;}
+  .process-num{font-size:34px;font-weight:800;color:var(--blue-100);position:absolute;top:16px;right:18px;}
+  .process-card h3{font-size:16.5px;margin:8px 0 8px;font-weight:800;}
+  .process-card p{font-size:14px;color:var(--ink-soft);margin:0;}
+
+  /* STATS */
+  .stats-band{background:var(--blue-900);border-radius:24px;padding:52px 40px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;color:#fff;}
+  .stat-num{font-size:38px;font-weight:800;color:#fff;}
+  .stat-num span{color:#7fa6f6;}
+  .stat-lbl{font-size:13.5px;color:#b7c4e0;margin-top:6px;font-weight:600;}
+
+  /* TESTIMONIALS */
+  .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .test-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;}
+  .stars{color:var(--blue-600);font-size:15px;margin-bottom:14px;letter-spacing:2px;}
+  .test-quote{font-size:14.5px;color:var(--ink);margin:0 0 20px;}
+  .test-person{display:flex;align-items:center;gap:12px;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--blue-100);}
+  .p-name{font-weight:700;font-size:13.5px;}
+  .p-role{font-size:12px;color:var(--ink-soft);}
+
+  /* FAQ */
+  .faq-list{max-width:760px;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-q{
+    width:100%;text-align:left;background:none;border:none;padding:20px 0;font-size:16px;font-weight:700;
+    cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--ink);
+  }
+  .faq-q .plus{font-size:20px;color:var(--blue-600);transition:transform .2s;}
+  .faq-item.open .faq-q .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .25s ease;font-size:14.5px;color:var(--ink-soft);}
+  .faq-item.open .faq-a{max-height:200px;padding-bottom:20px;}
+
+  /* CONTACT */
+  .contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:50px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:50px;}
+  .contact-grid h2{margin-top:0;}
+  .contact-info-item{display:flex;gap:14px;margin-bottom:22px;}
+  .ci-icon{width:38px;height:38px;border-radius:10px;background:var(--blue-100);color:var(--blue-700);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;}
+  .ci-label{font-size:12px;color:var(--ink-soft);font-weight:600;}
+  .ci-val{font-weight:700;font-size:14.5px;}
+  form{display:flex;flex-direction:column;gap:14px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  input,textarea,select{
+    border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;font-size:14.5px;font-family:inherit;
+    background:var(--blue-50);
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--blue-600);}
+  textarea{min-height:110px;resize:vertical;}
+  .submit-btn{background:var(--blue-600);color:#fff;border:none;padding:14px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;}
+  .form-note{font-size:12px;color:var(--ink-soft);}
+
+  footer{padding:40px 0;border-top:1px solid var(--line);text-align:center;color:var(--ink-soft);font-size:13.5px;}
+
+  @media(max-width:900px){
+    .hero-grid,.contact-grid{grid-template-columns:1fr;}
+    .work-grid,.test-grid{grid-template-columns:1fr 1fr;}
+    .process-strip{grid-template-columns:1fr 1fr;}
+    .stats-band{grid-template-columns:1fr 1fr;}
+    nav ul{display:none;}
+    .mobile-toggle{display:block;}
+    h1{font-size:38px;}
+  }
+</style>
+</head>
+<body>
+<div class="tag-note">MOCKUP 1 · Cinematic Light</div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="dot"></span> Oubaid Edits</div>
+    <nav><ul>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#testimonials">Testimonials</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul></nav>
+    <a href="#contact" class="cta-btn">Get in touch</a>
+    <button class="mobile-toggle">☰</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">Freelance Video Editor</div>
+      <h1>Video edits that turn <span>viewers into clients.</span></h1>
+      <p class="hero-sub">I'm Oubaid — I edit short and long-form video for dentists, agencies, podcasters, and brands who need content that actually converts.</p>
+      <div class="hero-ctas">
+        <a href="#work" class="btn-primary">See my work</a>
+        <a href="#contact" class="btn-ghost">Book a call</a>
+      </div>
+      <div class="hero-niches">
+        <span class="niche-chip">Cosmetic Dentistry</span>
+        <span class="niche-chip">Meta Ads</span>
+        <span class="niche-chip">Talking Heads</span>
+        <span class="niche-chip">Podcast</span>
+        <span class="niche-chip">Testimonials</span>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <div class="photo-card"><span class="ph-label">[ Photo of Oubaid ]</span></div>
+      <div class="float-badge">
+        <div class="num">50+</div>
+        <div class="lbl">Projects<br>delivered</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Selected Work</div>
+      <h2>Browse by niche</h2>
+      <p class="section-sub">Every project below is unlisted footage — filter to see edits relevant to your industry.</p>
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-f="all">All</button>
+      <button class="filter-btn" data-f="dentistry">Cosmetic Dentistry</button>
+      <button class="filter-btn" data-f="ads">Meta Ads</button>
+      <button class="filter-btn" data-f="talking">Talking Heads</button>
+      <button class="filter-btn" data-f="podcast">Podcast</button>
+      <button class="filter-btn" data-f="testimonials">Testimonials</button>
+    </div>
+    <div class="work-grid" id="workGrid">
+      <div class="work-card" data-cat="dentistry"><div class="thumb"><div class="play"></div></div><div class="work-meta"><span class="work-tag">Cosmetic Dentistry</span><span class="work-title">Smile Makeover — Before/After Reel</span></div></div>
+      <div class="work-card" data-cat="ads"><div class="thumb"><div class="play"></div></div><div class="work-meta"><span class="work-tag">Meta Ads</span><span class="work-title">DTC Skincare — UGC Ad Cut</span></div></div>
+      <div class="work-card" data-cat="talking"><div class="thumb"><div class="play"></div></div><div class="work-meta"><span class="work-tag">Talking Heads</span><span class="work-title">Founder Story — Brand Film</span></div></div>
+      <div class="work-card" data-cat="podcast"><div class="thumb"><div class="play"></div></div><div class="work-meta"><span class="work-tag">Podcast</span><span class="work-title">Weekly Show — Clip Pack Ep. 12</span></div></div>
+      <div class="work-card" data-cat="testimonials"><div class="thumb"><div class="play"></div></div><div class="work-meta"><span class="work-tag">Testimonials</span><span class="work-title">Client Success Story — 60s Cut</span></div></div>
+      <div class="work-card" data-cat="dentistry"><div class="thumb"><div class="play"></div></div><div class="work-meta"><span class="work-tag">Cosmetic Dentistry</span><span class="work-title">Invisalign Journey Recap</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="process">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">How I Work</div>
+      <h2>A simple, predictable process</h2>
+    </div>
+    <div class="process-strip">
+      <div class="process-card"><div class="process-num">01</div><h3>Discovery</h3><p>We align on goals, niche, and the story your footage needs to tell.</p></div>
+      <div class="process-card"><div class="process-num">02</div><h3>Rough Cut</h3><p>First edit lands in your inbox within days, not weeks.</p></div>
+      <div class="process-card"><div class="process-num">03</div><h3>Revisions</h3><p>Structured feedback rounds so nothing gets lost in translation.</p></div>
+      <div class="process-card"><div class="process-num">04</div><h3>Delivery</h3><p>Final files, captions, and platform-ready exports handed off.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="stats-band">
+      <div><div class="stat-num"><span>50</span>+</div><div class="stat-lbl">Projects delivered</div></div>
+      <div><div class="stat-num"><span>12</span></div><div class="stat-lbl">Niches served</div></div>
+      <div><div class="stat-num"><span>3.2</span>M</div><div class="stat-lbl">Views generated</div></div>
+      <div><div class="stat-num"><span>48</span>h</div><div class="stat-lbl">Avg. turnaround</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="testimonials">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Client Testimonials</div>
+      <h2>What clients say</h2>
+    </div>
+    <div class="test-grid">
+      <div class="test-card"><div class="stars">★★★★★</div><p class="test-quote">"Oubaid turned around our ad creative faster than any editor we've worked with — and it converted."</p><div class="test-person"><div class="avatar"></div><div><div class="p-name">Placeholder Name</div><div class="p-role">Marketing Lead, Agency</div></div></div></div>
+      <div class="test-card"><div class="stars">★★★★★</div><p class="test-quote">"Our practice's Instagram grew 3x after switching to his edits. Total professional."</p><div class="test-person"><div class="avatar"></div><div><div class="p-name">Placeholder Name</div><div class="p-role">Cosmetic Dentist</div></div></div></div>
+      <div class="test-card"><div class="stars">★★★★★</div><p class="test-quote">"Reliable, fast, and genuinely good taste. Our podcast clips finally look premium."</p><div class="test-person"><div class="avatar"></div><div><div class="p-name">Placeholder Name</div><div class="p-role">Podcast Host</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">FAQ</div>
+      <h2>Good to know</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item open"><button class="faq-q">What's your turnaround time? <span class="plus">+</span></button><div class="faq-a">Most short-form edits are delivered within 48 hours; long-form projects typically take 4–7 days depending on scope.</div></div>
+      <div class="faq-item"><button class="faq-q">Do you handle captions and subtitles? <span class="plus">+</span></button><div class="faq-a">Yes — burned-in captions, platform-native subtitle files, or both, included in most packages.</div></div>
+      <div class="faq-item"><button class="faq-q">How many revision rounds are included? <span class="plus">+</span></button><div class="faq-a">Two rounds are standard; additional rounds are available if needed.</div></div>
+      <div class="faq-item"><button class="faq-q">What footage or files do you need from me? <span class="plus">+</span></button><div class="faq-a">Raw footage or screen recordings, brand assets if available, and any reference edits you like.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div>
+        <div class="eyebrow">Contact</div>
+        <h2>Let's talk about your project</h2>
+        <p class="section-sub" style="margin-bottom:28px;">Fill out the form or reach out directly — I usually reply within a day.</p>
+        <div class="contact-info-item"><div class="ci-icon">@</div><div><div class="ci-label">Email</div><div class="ci-val">hello@oubaidedits.com</div></div></div>
+        <div class="contact-info-item"><div class="ci-icon">in</div><div><div class="ci-label">Instagram</div><div class="ci-val">@oubaidedits</div></div></div>
+        <div class="contact-info-item"><div class="ci-icon">⏱</div><div><div class="ci-label">Response time</div><div class="ci-val">Within 24 hours</div></div></div>
+      </div>
+      <form onsubmit="event.preventDefault(); this.reset(); document.getElementById('formMsg1').style.display='block';">
+        <div class="form-row">
+          <input type="text" placeholder="Your name" required>
+          <input type="email" placeholder="Email address" required>
+        </div>
+        <select><option>What do you need help with?</option><option>Cosmetic Dentistry content</option><option>Meta Ads</option><option>Talking Head / brand film</option><option>Podcast editing</option><option>Testimonial video</option><option>Something else</option></select>
+        <textarea placeholder="Tell me a bit about your project..."></textarea>
+        <button class="submit-btn" type="submit">Send message</button>
+        <div class="form-note" id="formMsg1" style="display:none;color:var(--blue-600);font-weight:700;">✓ Message sent (mockup only — connects to Formspree in the real build).</div>
+        <div class="form-note">Powered by Formspree · no backend required.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Oubaid Beldi — Oubaid Edits. All rights reserved.</footer>
+
+<script>
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const f=btn.dataset.f;
+      document.querySelectorAll('.work-card').forEach(card=>{
+        card.style.display = (f==='all'||card.dataset.cat===f) ? '' : 'none';
+      });
+    });
+  });
+  document.querySelectorAll('.faq-q').forEach(q=>{
+    q.addEventListener('click',()=>{
+      const item=q.parentElement;
+      const wasOpen=item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>

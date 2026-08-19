@@ -1,0 +1,101 @@
+---
+const links = [
+  { href: "#work", label: "Work" },
+  { href: "#process", label: "Process" },
+  { href: "#testimonials", label: "Testimonials" },
+  { href: "#faq", label: "FAQ" },
+];
+---
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="dot"></span> Oubaid Edits</div>
+    <nav>
+      <ul>
+        {links.map((link) => (
+          <li><a href={link.href}>{link.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a href="#contact" class="cta-btn">Get in touch</a>
+    <button class="mobile-toggle" aria-label="Toggle menu">☰</button>
+  </div>
+</header>
+
+<style>
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(247, 248, 251, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0;
+  }
+  .logo {
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo .dot {
+    width: 9px;
+    height: 9px;
+    background: var(--blue-600);
+    border-radius: 2px;
+    transform: rotate(45deg);
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+    margin: 0;
+    padding: 0;
+  }
+  nav ul a {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: color 0.15s;
+  }
+  nav ul a:hover {
+    color: var(--blue-600);
+  }
+  .cta-btn {
+    background: var(--blue-600);
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: var(--radius-btn);
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 6px 16px rgba(26, 86, 219, 0.25);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .cta-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(26, 86, 219, 0.35);
+  }
+  .mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    nav ul {
+      display: none;
+    }
+    .mobile-toggle {
+      display: block;
+    }
+  }
+</style>

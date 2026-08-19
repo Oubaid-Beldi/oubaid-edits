@@ -1,0 +1,92 @@
+---
+const faqs = [
+  {
+    q: "What's your turnaround time?",
+    a: "Most short-form edits are delivered within 48 hours; long-form projects typically take 4–7 days depending on scope.",
+    open: true,
+  },
+  {
+    q: "Do you handle captions and subtitles?",
+    a: "Yes — burned-in captions, platform-native subtitle files, or both, included in most packages.",
+  },
+  {
+    q: "How many revision rounds are included?",
+    a: "Two rounds are standard; additional rounds are available if needed.",
+  },
+  {
+    q: "What footage or files do you need from me?",
+    a: "Raw footage or screen recordings, brand assets if available, and any reference edits you like.",
+  },
+];
+---
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">FAQ</div>
+      <h2>Good to know</h2>
+    </div>
+    <div class="faq-list">
+      {faqs.map((item) => (
+        <div class:list={["faq-item", { open: item.open }]}>
+          <button class="faq-q">{item.q} <span class="plus">+</span></button>
+          <div class="faq-a">{item.a}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-list {
+    max-width: 760px;
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--line);
+  }
+  .faq-q {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 20px 0;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  .faq-q .plus {
+    font-size: 20px;
+    color: var(--blue-600);
+    transition: transform 0.2s;
+  }
+  .faq-item.open .faq-q .plus {
+    transform: rotate(45deg);
+  }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .faq-item.open .faq-a {
+    max-height: 200px;
+    padding-bottom: 20px;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>(".faq-q").forEach((q) => {
+    q.addEventListener("click", () => {
+      const item = q.parentElement;
+      const wasOpen = item?.classList.contains("open");
+      document.querySelectorAll(".faq-item").forEach((i) => i.classList.remove("open"));
+      if (!wasOpen) item?.classList.add("open");
+    });
+  });
+</script>

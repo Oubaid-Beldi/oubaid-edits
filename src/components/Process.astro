@@ -1,0 +1,65 @@
+---
+const steps = [
+  { num: "01", title: "Discovery", desc: "We align on goals, niche, and the story your footage needs to tell." },
+  { num: "02", title: "Rough Cut", desc: "First edit lands in your inbox within days, not weeks." },
+  { num: "03", title: "Revisions", desc: "Structured feedback rounds so nothing gets lost in translation." },
+  { num: "04", title: "Delivery", desc: "Final files, captions, and platform-ready exports handed off." },
+];
+---
+
+<section id="process">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">How I Work</div>
+      <h2>A simple, predictable process</h2>
+    </div>
+    <div class="process-strip">
+      {steps.map((step) => (
+        <div class="process-card">
+          <div class="process-num">{step.num}</div>
+          <h3>{step.title}</h3>
+          <p>{step.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .process-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .process-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px 22px;
+    position: relative;
+  }
+  .process-num {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--blue-100);
+    position: absolute;
+    top: 16px;
+    right: 18px;
+  }
+  .process-card h3 {
+    font-size: 16.5px;
+    margin: 8px 0 8px;
+    font-weight: 800;
+  }
+  .process-card p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .process-strip {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

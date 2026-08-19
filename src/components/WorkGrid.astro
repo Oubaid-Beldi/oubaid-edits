@@ -1,0 +1,151 @@
+---
+const filters = [
+  { f: "all", label: "All" },
+  { f: "dentistry", label: "Cosmetic Dentistry" },
+  { f: "ads", label: "Meta Ads" },
+  { f: "talking", label: "Talking Heads" },
+  { f: "podcast", label: "Podcast" },
+  { f: "testimonials", label: "Testimonials" },
+];
+
+const workItems = [
+  { cat: "dentistry", tag: "Cosmetic Dentistry", title: "Smile Makeover — Before/After Reel" },
+  { cat: "ads", tag: "Meta Ads", title: "DTC Skincare — UGC Ad Cut" },
+  { cat: "talking", tag: "Talking Heads", title: "Founder Story — Brand Film" },
+  { cat: "podcast", tag: "Podcast", title: "Weekly Show — Clip Pack Ep. 12" },
+  { cat: "testimonials", tag: "Testimonials", title: "Client Success Story — 60s Cut" },
+  { cat: "dentistry", tag: "Cosmetic Dentistry", title: "Invisalign Journey Recap" },
+];
+---
+
+<section id="work">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Selected Work</div>
+      <h2>Browse by niche</h2>
+      <p class="section-sub">
+        Every project below is unlisted footage — filter to see edits relevant to your industry.
+      </p>
+    </div>
+    <div class="filters">
+      {filters.map((filter, i) => (
+        <button class:list={["filter-btn", { active: i === 0 }]} data-f={filter.f}>
+          {filter.label}
+        </button>
+      ))}
+    </div>
+    <div class="work-grid" id="workGrid">
+      {workItems.map((item) => (
+        <div class="work-card" data-cat={item.cat}>
+          <div class="thumb"><div class="play"></div></div>
+          <div class="work-meta">
+            <span class="work-tag">{item.tag}</span>
+            <span class="work-title">{item.title}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .filter-btn {
+    border: 1.5px solid var(--line);
+    background: #fff;
+    padding: 9px 18px;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+  .filter-btn.active,
+  .filter-btn:hover {
+    background: var(--blue-600);
+    border-color: var(--blue-600);
+    color: #fff;
+  }
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .work-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .work-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 24px 44px -20px rgba(11, 26, 51, 0.28);
+  }
+  .thumb {
+    aspect-ratio: 16 / 9;
+    position: relative;
+    background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .thumb .play {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .thumb .play::before {
+    content: "";
+    border-style: solid;
+    border-width: 8px 0 8px 13px;
+    border-color: transparent transparent transparent var(--blue-600);
+    margin-left: 3px;
+  }
+  .work-meta {
+    padding: 16px 18px;
+  }
+  .work-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--blue-600);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .work-title {
+    font-weight: 700;
+    font-size: 15.5px;
+  }
+
+  @media (max-width: 900px) {
+    .work-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const f = btn.dataset.f;
+      document.querySelectorAll<HTMLElement>(".work-card").forEach((card) => {
+        card.style.display = f === "all" || card.dataset.cat === f ? "" : "none";
+      });
+    });
+  });
+</script>
