@@ -8,6 +8,8 @@ const options = [
   "Testimonial video",
   "Something else",
 ];
+
+const formspreeEndpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT;
 ---
 
 <section id="contact">
@@ -41,18 +43,30 @@ const options = [
           </div>
         </div>
       </div>
-      <form id="contactForm">
+      <form id="contactForm" action={formspreeEndpoint} method="POST">
         <div class="form-row">
-          <input type="text" placeholder="Your name" required />
-          <input type="email" placeholder="Email address" required />
+          <input type="text" name="name" placeholder="Your name" required />
+          <input type="email" name="email" placeholder="Email address" required />
         </div>
-        <select>
+        <select name="topic">
           {options.map((opt) => <option>{opt}</option>)}
         </select>
-        <textarea placeholder="Tell me a bit about your project..."></textarea>
+        <textarea name="message" placeholder="Tell me a bit about your project..."></textarea>
+        <input
+          type="text"
+          name="_gotcha"
+          class="hp-field"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+        />
         <button class="submit-btn" type="submit">Send message</button>
-        <div class="form-note" id="formMsg1" style="display:none;color:var(--blue-600);font-weight:700;">
-          ✓ Message sent (mockup only — connects to Formspree in the real build).
+        <div class="form-note form-success" id="formSuccess">
+          ✓ Message sent — I'll get back to you within a day.
+        </div>
+        <div class="form-note form-error" id="formError">
+          Something went wrong sending your message. Try again, or email
+          hello@oubaidedits.com directly.
         </div>
         <div class="form-note">Powered by Formspree · no backend required.</div>
       </form>
@@ -129,6 +143,13 @@ const options = [
     min-height: 110px;
     resize: vertical;
   }
+  .hp-field {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
   .submit-btn {
     background: var(--blue-600);
     color: #fff;
@@ -139,9 +160,24 @@ const options = [
     font-size: 15px;
     cursor: pointer;
   }
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
   .form-note {
     font-size: 12px;
     color: var(--ink-soft);
+  }
+  .form-success,
+  .form-error {
+    display: none;
+    font-weight: 700;
+  }
+  .form-success {
+    color: var(--blue-600);
+  }
+  .form-error {
+    color: #c0362c;
   }
 
   @media (max-width: 900px) {
@@ -153,10 +189,39 @@ const options = [
 
 <script>
   const form = document.getElementById("contactForm") as HTMLFormElement | null;
-  form?.addEventListener("submit", (event) => {
+  const submitBtn = form?.querySelector<HTMLButtonElement>(".submit-btn");
+  const successMsg = document.getElementById("formSuccess");
+  const errorMsg = document.getElementById("formError");
+
+  form?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    form.reset();
-    const msg = document.getElementById("formMsg1");
-    if (msg) msg.style.display = "block";
+
+    const data = new FormData(form);
+    // Honeypot: a real visitor never fills this in. A bot filling every
+    // field usually will — silently drop the submission without hitting
+    // Formspree at all.
+    if (data.get("_gotcha")) return;
+
+    if (successMsg) successMsg.style.display = "none";
+    if (errorMsg) errorMsg.style.display = "none";
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+      if (response.ok) {
+        form.reset();
+        if (successMsg) successMsg.style.display = "block";
+      } else if (errorMsg) {
+        errorMsg.style.display = "block";
+      }
+    } catch {
+      if (errorMsg) errorMsg.style.display = "block";
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
   });
 </script>

@@ -1,23 +1,13 @@
 ---
-const faqs = [
-  {
-    q: "What's your turnaround time?",
-    a: "Most short-form edits are delivered within 48 hours; long-form projects typically take 4–7 days depending on scope.",
-    open: true,
-  },
-  {
-    q: "Do you handle captions and subtitles?",
-    a: "Yes — burned-in captions, platform-native subtitle files, or both, included in most packages.",
-  },
-  {
-    q: "How many revision rounds are included?",
-    a: "Two rounds are standard; additional rounds are available if needed.",
-  },
-  {
-    q: "What footage or files do you need from me?",
-    a: "Raw footage or screen recordings, brand assets if available, and any reference edits you like.",
-  },
-];
+import { getCollection } from "astro:content";
+
+// A Question with no Answer isn't complete enough to show — this is a
+// build-time convention, not a Sveltia-enforced required field (Answer is
+// deliberately optional per the Data model, e.g. for a drafted-but-unwritten
+// entry).
+const faqs = (await getCollection("faq"))
+  .filter((entry) => entry.data.answer)
+  .sort((a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity));
 ---
 
 <section id="faq">
@@ -27,10 +17,10 @@ const faqs = [
       <h2>Good to know</h2>
     </div>
     <div class="faq-list">
-      {faqs.map((item) => (
-        <div class:list={["faq-item", { open: item.open }]}>
-          <button class="faq-q">{item.q} <span class="plus">+</span></button>
-          <div class="faq-a">{item.a}</div>
+      {faqs.map((item, i) => (
+        <div class:list={["faq-item", { open: i === 0 }]}>
+          <button class="faq-q">{item.data.question} <span class="plus">+</span></button>
+          <div class="faq-a">{item.data.answer}</div>
         </div>
       ))}
     </div>
