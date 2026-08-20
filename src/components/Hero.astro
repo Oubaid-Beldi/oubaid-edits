@@ -1,30 +1,37 @@
 ---
 import { Image } from "astro:assets";
-import oubaidProfile from "../assets/oubaid-profile.jpg";
+import { getCollection, getEntry, render } from "astro:content";
 
-const niches = ["Cosmetic Dentistry", "Meta Ads", "Talking Heads", "Podcast", "Testimonials"];
+const site = await getEntry("site", "site");
+if (!site) throw new Error("Missing required site content entry: src/content/site/site.md");
+const { Content: Bio } = await render(site);
+
+const niches = (await getCollection("niches")).sort(
+  (a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity)
+);
 ---
 
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
       <div class="kicker">Freelance Video Editor</div>
-      <h1>Video edits that turn <span>viewers into clients.</span></h1>
-      <p class="hero-sub">
-        I'm Oubaid — I edit short and long-form video for dentists, agencies, podcasters, and
-        brands who need content that actually converts.
-      </p>
+      <h1>{site.data.headline}</h1>
+      <div class="hero-sub">
+        <Bio />
+      </div>
       <div class="hero-ctas">
         <a href="#work" class="btn-primary">See my work</a>
         <a href="#contact" class="btn-ghost">Book a call</a>
       </div>
       <div class="hero-niches">
-        {niches.map((niche) => <span class="niche-chip">{niche}</span>)}
+        {niches.map((niche) => <span class="niche-chip">{niche.data.name}</span>)}
       </div>
     </div>
     <div class="hero-photo">
       <div class="photo-card">
-        <Image src={oubaidProfile} alt="Oubaid Beldi" width={960} height={1200} loading="eager" />
+        {site.data.photo && (
+          <Image src={site.data.photo} alt={site.data.name} width={960} height={1200} loading="eager" />
+        )}
       </div>
       <div class="float-badge">
         <div class="num">50+</div>

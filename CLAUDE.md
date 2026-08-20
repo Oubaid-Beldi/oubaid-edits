@@ -118,32 +118,52 @@ See `/session-logs/` in the repo, one file per session, newest = current state. 
 
 (Overwrite this section at the end of every session — this is the only part of this file expected to change often.)
 
-**Session 1 complete.** Astro project scaffolded (static output, TypeScript
-strict). Full page structure built and verified against the mockup: Nav,
-Hero, Work (with niche filter), Process, Stats, Testimonials, FAQ (with
-single-open accordion), Contact (with mock submit), Footer — all as
-components under `src/components/`, composed in `src/pages/index.astro`.
-Design tokens live in `src/styles/tokens.css`; each component carries its
-own scoped `<style>` block for section-specific rules. All content is
-hardcoded placeholder data copied from `mockup-1-cinematic-light.html` —
-no content collections yet. `astro check` and `astro build` both pass
-clean; `npm run dev` confirmed working via screenshot and a scripted
-interaction test (filter, accordion, form submit all functional).
+**Session 2 complete.** Astro Content Collections wired up. Schema lives
+in `src/content.config.ts` (see "Deviation" note below on the path) and
+defines all seven collections from the Data model — Site, Niches, Work,
+Process, Stats, Testimonials, FAQ — each using Astro's `glob()` loader
+pointed at its own `src/content/<name>/` folder, with a Zod schema whose
+required field matches the Data model table exactly (`.optional()` on
+everything else). Every collection has real sample content: one Site
+singleton entry, 5 Niches, 4 Work items, 4 Process steps, 4 Stats, 3
+Testimonials, 4 FAQ entries — mostly ported from the Session 1 mockup
+placeholders so the copy stays consistent.
 
-Hero now shows a real profile photo (`src/assets/oubaid-profile.jpg`,
-cropped to the design's 4:5 aspect ratio) instead of the mockup's
-placeholder card, wired through `astro:assets` for build-time WebP
-optimization.
+Only the Hero section (`src/components/Hero.astro`) is wired to read from
+content: headline, bio (rendered from the Site entry's Markdown body),
+photo (via `astro:assets` + the schema's `image()` field), and the niche
+chips (from the Niches collection, sorted by `sortOrder`) all come from
+`src/content/site/site.md` and `src/content/niches/*.md` now — no more
+hardcoded arrays in Hero. The old standalone `src/assets/oubaid-profile.jpg`
+was removed since the photo now lives at `src/content/site/oubaid-profile.jpg`,
+referenced by the Site entry's `photo` field.
+
+Work grid, Process, Stats, Testimonials, FAQ, and Contact are all still
+hardcoded placeholder arrays exactly as Session 1 left them — untouched
+this session, each waiting on its own future session to wire up.
+
+`astro check` (0 errors) and `astro build` both pass clean; `npm run dev`
+confirmed working via screenshot showing live Hero headline/bio/photo/niche
+chips.
 
 Repo pushed to GitHub (`Oubaid-Beldi/oubaid-edits`) for version control
-only — not connected to any hosting provider. Latest commit: `8ac647c`.
+only — not connected to any hosting provider.
 
-**Not yet started:** Astro Content Collections (`src/content/config.ts` +
-the seven collections from the Data model), Sveltia CMS (`admin/`), real
-Formspree wiring (`.env.example` documents the var name only), SEO meta
-tags, responsive/accessibility polish beyond the mockup, Cloudflare Pages
-deploy.
+**Deviation worth knowing about:** CLAUDE.md's file structure lists the
+schema file as `src/content/config.ts`. Astro 7 removed that path (the
+"legacy" folder-inferred collection type) — `astro check`/`astro build`
+now hard-error and require the schema at `src/content.config.ts` with an
+explicit `loader:` per collection instead of `type: 'content'`. Used the
+framework's required path/API; see session-02 log for detail.
 
-**Next session:** wire up Content Collections and replace the hardcoded
-placeholder arrays in each component with data read from
-`src/content/*`, still verified via `npm run dev` only.
+**Not yet started:** Sveltia CMS (`admin/`), real Formspree wiring
+(`.env.example` documents the var name only), SEO meta tags,
+responsive/accessibility polish beyond the mockup, Cloudflare Pages
+deploy, wiring Work/Process/Stats/Testimonials/FAQ/Contact to their
+collections.
+
+**Next session:** per the Build Plan, likely wire up one or more of the
+remaining sections (Work grid, Process, Stats, Testimonials, FAQ) to their
+content collections — schemas and sample content already exist for all of
+them, only the components' hardcoded arrays need replacing. Still verified
+via `npm run dev` only (no CMS, no deploy).
