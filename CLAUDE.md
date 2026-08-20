@@ -72,7 +72,7 @@ Content lives in `src/content/`. Sveltia CMS's `admin/config.yml` defines the sa
 ### Environment variables / secrets
 
 - `PUBLIC_FORMSPREE_ENDPOINT` — the Formspree form endpoint URL. Set as a Cloudflare Pages build environment variable from Session 5 onward. Safe to expose client-side (Astro's `PUBLIC_` prefix convention) since it's already visible in the rendered HTML form action.
-- `GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET` — credentials for the GitHub OAuth App used by the CMS login. Set as secrets on the `sveltia-cms-auth` Cloudflare Worker (a separate deployable from the main site) — never in the Astro project, never committed.
+- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — credentials for the GitHub OAuth App used by the CMS login (corrected from this file's original placeholder names `GITHUB_OAUTH_CLIENT_ID`/`SECRET` — these are the exact names the `sveltia-cms-auth` Worker's source reads from `env`; see session-06 log). Set as **Secret**-type (encrypted) bindings on the `sveltia-cms-auth` Cloudflare Worker, under its Production environment specifically — never in the Astro project, never committed.
 - A `.env.example` at the repo root documents the `PUBLIC_FORMSPREE_ENDPOINT` name with a placeholder value only.
 
 ### File structure
@@ -88,7 +88,7 @@ Content lives in `src/content/`. Sveltia CMS's `admin/config.yml` defines the sa
 - src/pages/index.astro
 - src/components/ (Nav, Hero, WorkGrid, Process, Stats, Testimonials, FAQ, Contact, Footer)
 - src/styles/tokens.css (design tokens above)
-- admin/index.html + admin/config.yml (Sveltia CMS dashboard, added in Session 6)
+- public/admin/index.html + public/admin/config.yml (Sveltia CMS dashboard, added Session 6; not a repo-root `admin/` — Astro's static build only copies `public/` verbatim into `dist/`, so anything outside it never reaches the live site. See session-06 log.)
 - session-logs/session-NN-slug.md
 - CLAUDE.md
 - .env.example
@@ -120,85 +120,101 @@ See `/session-logs/` in the repo, one file per session, newest = current state. 
 
 (Overwrite this section at the end of every session — this is the only part of this file expected to change often.)
 
-**Session 5 complete — the site is live for the first time, and content
-is now complete** (every section reads from its collection; only Sveltia
-CMS remains before Oubaid can edit content without touching code).
+**Session 6 complete — the CMS dashboard is live and the last unmet hard
+constraint (fully CRUD-editable content, no code required) is now met.**
+Every content type can be created, edited, and deleted from `/admin` by
+Oubaid alone, with each save landing as a real GitHub commit that
+auto-redeploys — verified end-to-end this session, not just configured.
 
-**Live URL:** https://oubaid-edits.oubaidbeldi.workers.dev
+**Live site:** https://oubaid-edits.oubaidbeldi.workers.dev
+**CMS dashboard:** https://oubaid-edits.oubaidbeldi.workers.dev/admin/
+**Auth Worker:** https://sveltia-cms-auth.oubaidbeldi.workers.dev (Oubaid's
+fork of github.com/sveltia/sveltia-cms-auth)
+**GitHub OAuth App callback URL:** `https://sveltia-cms-auth.oubaidbeldi.workers.dev/callback`
 
-**Part 1 — FAQ and Contact wired up:**
-- `src/components/FAQ.astro` reads `getCollection("faq")`, filters out any
-  entry with a blank `answer` (a build-time convention — Answer is
-  optional by design in the schema, not a Sveltia-enforced required
-  field, so an unanswered drafted question simply doesn't render), then
-  sorts by the same `sortOrder ?? Infinity` pattern as every other
-  section. The first visible item opens by default, matching the
-  mockup's single-open accordion.
-- `src/components/Contact.astro` now really submits: `action` points at
-  `import.meta.env.PUBLIC_FORMSPREE_ENDPOINT` (plain HTML POST as a
-  no-JS fallback), with a JS `fetch` handler intercepting submit for an
-  AJAX-style experience — real success/error messages, submit button
-  disabled mid-request, form reset only on success. A hidden `_gotcha`
-  field (Formspree's own documented honeypot convention) is checked
-  client-side too: if it's filled in, the submission is dropped before
-  ever reaching Formspree. Field layout, options list, and info panel are
-  all untouched from the mockup.
-- `PUBLIC_FORMSPREE_ENDPOINT` set locally in a git-ignored `.env` (not
-  committed — `.env.example` still documents the name/placeholder only)
-  and, later in the session, as a Cloudflare environment variable.
-- Sample content: `faq/long-form-youtube.md` added with a question and no
-  answer, specifically to verify the skip behavior — confirmed via
-  Playwright not to render. FAQ accordion, contact success state, contact
-  error state, and honeypot-drop were all verified locally against mocked
-  Formspree responses before touching the real endpoint.
+**What was built:**
+- `public/admin/index.html` + `public/admin/config.yml` — **not** a
+  repo-root `admin/` folder (CLAUDE.md's File structure section said that;
+  corrected this session, same class of doc-vs-reality gap as the
+  `content.config.ts` path in Session 2). Astro's static build only
+  copies `public/` verbatim into `dist/`; anything outside it is invisible
+  to the live site.
+- `config.yml` defines all seven collections from the Data model table,
+  each field's `required` matching exactly, widget types chosen per field
+  (`string`/`text`/`number`/`boolean`/`image`/`markdown`/`relation`). Bio
+  maps to the special `body` field (markdown widget) since it's the
+  entry's Markdown body, not frontmatter, per Session 2's schema decision.
+  Site's Photo field uses `media_folder: ""` / `public_folder: "./"` to
+  keep uploads co-located with `site.md` (matching the existing
+  `./oubaid-profile.jpg` convention) rather than a generic uploads folder.
+- **Work's Niche relation is keyed on `value_field: "slug"`**, not
+  filename — matching the Session 2 gotcha that Astro's `glob()` loader
+  uses a Niche's `slug` frontmatter field as its ID when present, not its
+  filename. Added a `hint` on Niches' Slug field warning that a new niche
+  needs a Slug filled in before Work items can be assigned to it, since
+  this is the one place the CMS's UI can't self-enforce something the
+  underlying data model actually requires for correctness.
+- A few other `hint`s surface code-level conventions the CMS UI has no
+  other way to reveal: Headline's `**word**` accent-marker syntax (Hero.astro
+  parses it), and Answer's blank-means-hidden convention (FAQ.astro
+  filters it out).
+- `email` (Site) and `youtubeUrl` (Work, the required field) both get
+  `pattern` validation in the CMS — catching a malformed value at save
+  time instead of letting it through to break the next Astro build
+  (`z.string().email()` / `z.string().url()` in the schema would fail at
+  build time, not CMS-save time, without this).
 
-**Part 2 — first deploy, with a real detour:** Connecting the repo
-through Cloudflare's current "Create Application" flow did **not** produce
-a classic static Pages deployment. Its Deploy command (`npx wrangler
-deploy`) found no committed Wrangler config, so Wrangler's zero-config
-Astro bootstrapper silently ran `astro add cloudflare` on the first build
-— installing the `@astrojs/cloudflare` **adapter**, switching Astro to SSR
-output, and auto-provisioning an `env.SESSION` KV binding and an
-`env.IMAGES` Cloudflare Images binding this static site has no use for.
-The live symptom was a fully broken hero photo (the on-demand `/_image`
-transform endpoint 404'd). Root-caused by diffing our own `npx astro
-build` output (plain static `/_astro/*.webp`, `output: "static"`, no
-adapter) against the actual Cloudflare build log, which showed the
-adapter being installed mid-build. **Fix:** added `wrangler.jsonc` at the
-repo root — `{ "name": "oubaid-edits", "assets": { "directory": "./dist"
-} }`, deliberately no `main` entry point — so Wrangler serves `dist/` as
-plain static assets with no Worker script and no bindings at all, matching
-this project's actual zero-JS-by-default architecture. Once committed and
-auto-redeployed, the hero photo, FAQ, work embeds, niche filters, stats,
-testimonials, and contact form action were all re-verified byte-for-byte
-against the local build. Also added `.nvmrc` (pinned to `22.12.0`,
-matching `package.json`'s `engines` field) proactively before the first
-deploy, to avoid a plausible Node-version build mismatch.
+**GitHub OAuth App + `sveltia-cms-auth` Worker setup** (Oubaid did the
+actual clicking in both GitHub and Cloudflare dashboards):
+- OAuth App homepage URL = the live site; callback URL predicted in
+  advance as `https://sveltia-cms-auth.oubaidbeldi.workers.dev/callback`,
+  which only works because the Worker was deliberately named
+  `sveltia-cms-auth` on deploy (Cloudflare's account subdomain,
+  `oubaidbeldi`, was already known from Session 5's live URL).
+- Deploying the Worker itself was uneventful (unlike Session 5's Astro
+  detour) — it's a plain committed Worker script with its own minimal
+  `wrangler.toml`, no framework to auto-detect.
+- **Getting the secrets to actually bind took several attempts** — see
+  session-06 log for the full sequence. Short version: Cloudflare's
+  dashboard silently splits **Production** vs **Preview** environment
+  variables (same trap as Session 5's Formspree var), and the two secrets
+  were initially saved under the wrong scope. Confirmed by reading the
+  Worker's actual source (`src/index.js` on GitHub) to verify it does
+  nothing more exotic than `const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } = env`
+  — once correctly scoped to Production, `/auth?provider=github` went
+  from a `MISCONFIGURED_CLIENT` error straight to a proper `302` redirect
+  to GitHub's OAuth authorize endpoint with the right `client_id`.
 
-Also confirmed clean: no stray branch or pull request was left behind by
-Wrangler's earlier "Workers Builds connected builds will attempt to open a
-pull request to resolve this config name mismatch" warning — `git
-ls-remote` shows only `main`.
+**End-to-end test, both required behaviors confirmed live:**
+- **Required field blocks a bad save**: cleared an FAQ entry's Question
+  (the collection's required field) and attempted to save — Sveltia
+  refused with a validation error; entry discarded unsaved, untouched.
+- **A real save round-trips**: edited the Site entry's Bio via `/admin`,
+  saved, and it landed as a real commit (`a1fd8a1 Update Site "site"`) on
+  GitHub within seconds, with the live site auto-redeploying and showing
+  the change — no manual rebuild step, confirmed by polling the live URL
+  until the new text appeared. The test edit was then reverted via a
+  normal git commit (`cd7ddfd`) since it wasn't meant to be permanent
+  copy.
+- Noted for future sessions: Sveltia rewrites the *entire* frontmatter
+  block on every save (e.g. `name: "Oubaid Beldi"` → `name: Oubaid Beldi`,
+  dropping quotes it doesn't need) — cosmetic YAML-serialization style,
+  not a content change, but future diffs on CMS-edited files will look
+  noisier than a single-field change actually was.
 
-**Live end-to-end test:** submitted the real contact form against the
-live URL (Playwright, not a mock) — Formspree responded `200 {"ok":true}`
-and the on-page success message displayed. Formspree may send a one-time
-"confirm this submission" email to Oubaid's registered address for the
-very first submission from a new domain; worth checking that inbox if
-later real submissions don't show up as expected.
+**Not yet started:** SEO meta tags, responsive/accessibility polish
+beyond the mockup, custom domain.
 
-**Not yet started:** Sveltia CMS (`admin/`), SEO meta tags,
-responsive/accessibility polish beyond the mockup.
+**Optional cleanup, not blocking:** same as noted in Session 5 — the
+`env.SESSION`/`env.IMAGES` bindings from that session's broken first
+deploy attempt may still be listed on the main site's Worker (harmless,
+unused, no cost). New this session: the `sveltia-cms-auth` fork
+accumulated a few throwaway "Empty commit message" / "test" commits while
+troubleshooting the Production/Preview secret scoping — harmless, but
+Oubaid may want to squash or ignore them if he ever looks at that fork's
+history.
 
-**Optional cleanup, not blocking:** the Cloudflare dashboard's Bindings
-tab may still list the now-unused `env.SESSION` KV namespace and
-`env.IMAGES` binding from the first broken deploy — safe to delete
-manually since nothing in the current `wrangler.jsonc` declares or uses
-them, but they don't cost anything sitting idle either.
-
-**Next session (Session 6, per the Build Plan):** Sveltia CMS
-(`admin/index.html` + `admin/config.yml`), the self-hosted
-`sveltia-cms-auth` Cloudflare Worker for the GitHub OAuth handshake, and
-the `GITHUB_OAUTH_CLIENT_ID`/`SECRET` setup — this is what finally lets
-Oubaid edit every content type from `/admin` without touching code, the
-last unmet piece of CLAUDE.md's hard constraints.
+**Next session, per the Build Plan:** SEO meta tags and a
+responsive/accessibility polish pass are the two explicitly-deferred
+items with no session assigned yet — either is a reasonable next pick.
+No further hard constraints from CLAUDE.md remain unmet.
