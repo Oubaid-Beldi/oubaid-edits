@@ -1,21 +1,32 @@
 ---
-const stats = [
-  { num: "50", suffix: "+", label: "Projects delivered" },
-  { num: "12", suffix: "", label: "Niches served" },
-  { num: "3.2", suffix: "M", label: "Views generated" },
-  { num: "48", suffix: "h", label: "Avg. turnaround" },
-];
+import { getCollection } from "astro:content";
+
+const stats = (await getCollection("stats")).sort(
+  (a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity)
+);
+
+// Splits a value like "3.2M" or "48h" into a leading numeric part (rendered
+// in the lighter accent color, matching the mockup's two-tone stat numbers)
+// and a trailing suffix — mirrors Hero's **accent** marker trick: derive the
+// visual split from the string instead of adding a second schema field.
+function splitValue(value: string): [string, string] {
+  const match = value.match(/^([\d.,]+)(.*)$/);
+  return match ? [match[1], match[2]] : [value, ""];
+}
 ---
 
 <section>
   <div class="wrap">
     <div class="stats-band">
-      {stats.map((stat) => (
-        <div>
-          <div class="stat-num"><span>{stat.num}</span>{stat.suffix}</div>
-          <div class="stat-lbl">{stat.label}</div>
-        </div>
-      ))}
+      {stats.map((stat) => {
+        const [num, suffix] = splitValue(stat.data.value);
+        return (
+          <div>
+            <div class="stat-num"><span>{num}</span>{suffix}</div>
+            {stat.data.label && <div class="stat-lbl">{stat.data.label}</div>}
+          </div>
+        );
+      })}
     </div>
   </div>
 </section>

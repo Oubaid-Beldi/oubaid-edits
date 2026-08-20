@@ -1,10 +1,9 @@
 ---
-const steps = [
-  { num: "01", title: "Discovery", desc: "We align on goals, niche, and the story your footage needs to tell." },
-  { num: "02", title: "Rough Cut", desc: "First edit lands in your inbox within days, not weeks." },
-  { num: "03", title: "Revisions", desc: "Structured feedback rounds so nothing gets lost in translation." },
-  { num: "04", title: "Delivery", desc: "Final files, captions, and platform-ready exports handed off." },
-];
+import { getCollection } from "astro:content";
+
+const steps = (await getCollection("process")).sort(
+  (a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity)
+);
 ---
 
 <section id="process">
@@ -14,11 +13,11 @@ const steps = [
       <h2>A simple, predictable process</h2>
     </div>
     <div class="process-strip">
-      {steps.map((step) => (
+      {steps.map((step, i) => (
         <div class="process-card">
-          <div class="process-num">{step.num}</div>
-          <h3>{step.title}</h3>
-          <p>{step.desc}</p>
+          <div class="process-num">{String(i + 1).padStart(2, "0")}</div>
+          <h3>{step.data.title}</h3>
+          {step.data.description && <p>{step.data.description}</p>}
         </div>
       ))}
     </div>

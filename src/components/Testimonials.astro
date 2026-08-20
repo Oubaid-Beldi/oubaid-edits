@@ -1,21 +1,9 @@
 ---
-const testimonials = [
-  {
-    quote: "Oubaid turned around our ad creative faster than any editor we've worked with — and it converted.",
-    name: "Placeholder Name",
-    role: "Marketing Lead, Agency",
-  },
-  {
-    quote: "Our practice's Instagram grew 3x after switching to his edits. Total professional.",
-    name: "Placeholder Name",
-    role: "Cosmetic Dentist",
-  },
-  {
-    quote: "Reliable, fast, and genuinely good taste. Our podcast clips finally look premium.",
-    name: "Placeholder Name",
-    role: "Podcast Host",
-  },
-];
+import { getCollection } from "astro:content";
+
+const testimonials = (await getCollection("testimonials")).sort(
+  (a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity)
+);
 ---
 
 <section id="testimonials">
@@ -27,13 +15,13 @@ const testimonials = [
     <div class="test-grid">
       {testimonials.map((t) => (
         <div class="test-card">
-          <div class="stars">★★★★★</div>
-          <p class="test-quote">"{t.quote}"</p>
+          {t.data.rating && <div class="stars">{"★".repeat(t.data.rating) + "☆".repeat(5 - t.data.rating)}</div>}
+          <p class="test-quote">"{t.data.quote}"</p>
           <div class="test-person">
             <div class="avatar"></div>
             <div>
-              <div class="p-name">{t.name}</div>
-              <div class="p-role">{t.role}</div>
+              <div class="p-name">{t.data.name ?? "Anonymous Client"}</div>
+              {t.data.role && <div class="p-role">{t.data.role}</div>}
             </div>
           </div>
         </div>

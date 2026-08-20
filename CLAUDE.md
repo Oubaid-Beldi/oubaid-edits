@@ -118,64 +118,68 @@ See `/session-logs/` in the repo, one file per session, newest = current state. 
 
 (Overwrite this section at the end of every session — this is the only part of this file expected to change often.)
 
-**Session 3 complete.** Work section (`src/components/WorkGrid.astro`) now
-reads entirely from the Work and Niches collections — the Session 1
-hardcoded `workItems`/`filters` arrays are gone. Each Work entry's
-`youtubeUrl` is parsed (via a small `getYouTubeId()` helper supporting
-`youtu.be/`, `/shorts/`, `/watch?v=`, and `/embed/` URL shapes) into a
-video ID and rendered as a real unlisted YouTube `<iframe>` embed inside
-the existing `.thumb` card slot, replacing the static play-button overlay.
-Niche filter pills are now generated from the Niches collection itself
-("All" + one pill per niche, sorted by `sortOrder`) instead of a separate
-hardcoded list, so a future CMS-added niche automatically gets a filter
-button with no code change. The filter script matches each card's
-`data-niche` attribute (the linked niche's id) against the clicked
-pill's slug — unchanged logic from Session 1, just re-keyed to real data.
+**Session 4 complete.** Process, Stats, and Testimonials sections
+(`src/components/Process.astro`, `Stats.astro`, `Testimonials.astro`) now
+read entirely from their content collections — the Session 1 hardcoded
+arrays in all three are gone. All three follow the same
+`getCollection(...).sort((a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity))`
+pattern already established in Hero/WorkGrid: explicit `sortOrder` wins,
+entries missing it sort to the end rather than in random/insertion order.
 
-Both empty states from the session goal are handled and verified: a Work
-item with no `niche` field (`raw-cut-sample.md`) still renders as a card
-(video, title, no niche tag) and is visible under "All" but correctly
-disappears under every specific niche filter, since its `data-niche`
-attribute is simply absent. A zero-Work-items collection renders a plain
-"New work is on the way — check back soon." message instead of an empty
-grid (`workItems.length === 0` branch — not currently exercised by sample
-content, but present and structurally identical to how Hero already
-guards its required Site entry).
+- **Process**: the numeral watermark (01, 02, ...) is derived from each
+  step's position in the sorted list, not stored content — it's decorative
+  sequencing, not data. A step with no `description` renders title + numeral
+  only, no empty paragraph gap.
+- **Stats**: `value` (e.g. `"3.2M"`) is split via regex into a leading
+  numeric part (light-blue accent span) and trailing suffix, restoring the
+  mockup's two-tone stat numbers without a second schema field — same
+  technique as Hero's `**accent**` headline marker. A stat with no `label`
+  renders its value with no label line beneath, no empty box.
+- **Testimonials**: star rating renders as filled/outline stars
+  (`★` × rating + `☆` × remainder) only when `rating` is present — omitted
+  entirely otherwise, no guessing a default rating. `role` renders only if
+  present. `name` falls back to "Anonymous Client" if ever omitted (schema
+  allows it, though no sample entry currently omits it).
 
-Sample Work content was updated with two of Oubaid's real unlisted
-YouTube Shorts (`1bqgKH6ybr4`, `4JghVaMrIXA`, reused across entries the
-same way Session 2's placeholder video was reused) replacing the old
-Rick-Astley placeholder URL on all four existing entries, plus two new
-entries: one for the previously-unused Testimonials niche
-(`client-success-story.md`) and one with no niche at all
-(`raw-cut-sample.md`) specifically to exercise the empty-state behavior
-above. Six Work entries total now.
+Sample content: **Process and Stats** kept their existing 4 entries
+(preserving the mockup's fixed 4-card/4-stat layout) but had specific
+fields stripped from two entries each to exercise the required behaviors:
+`process/delivery.md` lost its `description`; `process/rough-cut.md` lost
+its `sortOrder` (now renders last, after Discovery/Revisions/Delivery,
+proving the fallback actually reorders); `stats/niches-served.md` lost its
+`label` (the exact "stat with no Label still shows its Value" case named
+in the goal); `stats/views-generated.md` lost its `sortOrder` (now renders
+last instead of 3rd). **Testimonials** got a genuinely new 4th entry
+(`quick-turnaround-client.md`, no `role`, no `rating`, no `sortOrder`) since
+that grid's 3-column layout naturally accommodates a wrapped 4th card,
+unlike Process/Stats' fixed-count bands.
 
-Process, Stats, Testimonials, FAQ, and Contact are all still hardcoded
-placeholder arrays exactly as Session 1 left them — untouched this
-session, each waiting on its own future session to wire up.
+FAQ and Contact are still hardcoded placeholders exactly as Session 1 left
+them — untouched this session.
 
 `astro check` (0 errors, same pre-existing `z`-deprecation hints as prior
 sessions) and `astro build` both pass clean. `npm run dev` confirmed
 working via a headless Playwright check against the running dev server:
-6 work cards render, each with a live YouTube iframe (`src` resolves to
-the correct video ID); clicking "Cosmetic Dentistry" narrows the grid to
-1 visible card; clicking "All" restores all 6; the no-niche card is
-visible under "All" and correctly hidden under "Meta Ads". Screenshot
-confirmed the grid visually matches the mockup's card/filter layout.
+Process order renders `[Discovery, Revisions, Delivery, Rough Cut]`
+(confirming the sortOrder-fallback reorder), Delivery's card has zero `<p>`
+elements while Rough Cut's has one; Stats render `[50+, 12, 48h, 3.2M]` in
+that order with exactly 3 `.stat-lbl` elements (not 4); Testimonials show
+4 cards, the last with zero `.stars` and zero `.p-role` elements. Screenshots
+confirmed all three sections render cleanly with no broken layout or
+visible empty gaps where optional fields are missing.
 
 Repo pushed to GitHub (`Oubaid-Beldi/oubaid-edits`) for version control
 only — not connected to any hosting provider.
 
-**Not yet started:** Sveltia CMS (`admin/`), real Formspree wiring
-(`.env.example` documents the var name only), SEO meta tags,
-responsive/accessibility polish beyond the mockup, Cloudflare Pages
-deploy, wiring Process/Stats/Testimonials/FAQ/Contact to their
-collections.
+**Not yet started:** FAQ and Contact still wired to hardcoded placeholders;
+Sveltia CMS (`admin/`), real Formspree wiring (`.env.example` documents the
+var name only), SEO meta tags, responsive/accessibility polish beyond the
+mockup, Cloudflare Pages deploy.
 
-**Next session:** per the Build Plan, likely wire up one or more of the
-remaining sections (Process, Stats, Testimonials, FAQ) to their content
-collections — schemas and sample content already exist for all of them,
-only the components' hardcoded arrays need replacing, following the same
-pattern now established in Hero and WorkGrid. Still verified via
-`npm run dev` only (no CMS, no deploy).
+**Next session (Session 5):** deployment session per CLAUDE.md's hard
+constraints — this was the last local-only session. Likely also wire FAQ
+to its collection (same pattern as Process/Stats/Testimonials) before or
+as part of going live, and connect Cloudflare Pages / set the
+`PUBLIC_FORMSPREE_ENDPOINT` build variable. Contact form logic (real
+Formspree wiring) and Sveltia CMS remain separately scoped per the Build
+Plan (CMS explicitly slated for Session 6).
