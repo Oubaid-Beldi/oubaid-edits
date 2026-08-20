@@ -1,0 +1,157 @@
+backend:
+  name: github
+  repo: Oubaid-Beldi/oubaid-edits
+  branch: main
+  base_url: https://sveltia-cms-auth.oubaidbeldi.workers.dev
+
+site_url: https://oubaid-edits.oubaidbeldi.workers.dev
+display_url: https://oubaid-edits.oubaidbeldi.workers.dev
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "site"
+    label: "Site"
+    files:
+      - name: "site"
+        label: "Site Settings"
+        file: "src/content/site/site.md"
+        fields:
+          - { label: "Name", name: "name", widget: "string", required: true }
+          - {
+              label: "Headline",
+              name: "headline",
+              widget: "string",
+              required: false,
+              hint: "Wrap words in **double asterisks** to render them in blue, e.g. Video edits that turn **viewers into clients.**",
+            }
+          - { label: "Subheadline", name: "subheadline", widget: "string", required: false }
+          - { label: "Bio", name: "body", widget: "markdown", required: false }
+          - {
+              label: "Photo",
+              name: "photo",
+              widget: "image",
+              required: false,
+              media_folder: "",
+              public_folder: "./",
+            }
+          - {
+              label: "Email",
+              name: "email",
+              widget: "string",
+              required: false,
+              pattern: ["^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", "Must be a valid email address"],
+            }
+          - { label: "Instagram Handle", name: "instagramHandle", widget: "string", required: false }
+          - { label: "Response Time Note", name: "responseTimeNote", widget: "string", required: false }
+
+  - name: "niches"
+    label: "Niches"
+    label_singular: "Niche"
+    folder: "src/content/niches"
+    create: true
+    delete: true
+    identifier_field: "name"
+    fields:
+      - { label: "Name", name: "name", widget: "string", required: true }
+      - {
+          label: "Slug",
+          name: "slug",
+          widget: "string",
+          required: false,
+          hint: "Short reference key (e.g. \"dentistry\"). Fill this in if you want Work items to be assignable to this niche — Work's Niche picker matches on Slug, not on this entry's filename.",
+        }
+      - { label: "Sort Order", name: "sortOrder", widget: "number", required: false, value_type: "int" }
+
+  - name: "work"
+    label: "Work"
+    label_singular: "Work item"
+    folder: "src/content/work"
+    create: true
+    delete: true
+    identifier_field: "title"
+    fields:
+      - {
+          label: "YouTube URL",
+          name: "youtubeUrl",
+          widget: "string",
+          required: true,
+          pattern: ["^https?:\\/\\/.+", "Must be a valid URL starting with http:// or https://"],
+        }
+      - { label: "Title", name: "title", widget: "string", required: false }
+      - {
+          label: "Niche",
+          name: "niche",
+          widget: "relation",
+          required: false,
+          collection: "niches",
+          value_field: "slug",
+          search_fields: ["name", "slug"],
+          display_fields: ["name"],
+          hint: "Leave blank if this project doesn't fit a niche yet — it'll still show under \"All\" on the site.",
+        }
+      - { label: "Sort Order", name: "sortOrder", widget: "number", required: false, value_type: "int" }
+      - { label: "Featured", name: "featured", widget: "boolean", required: false }
+
+  - name: "process"
+    label: "Process"
+    label_singular: "Process step"
+    folder: "src/content/process"
+    create: true
+    delete: true
+    identifier_field: "title"
+    fields:
+      - { label: "Title", name: "title", widget: "string", required: true }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Sort Order", name: "sortOrder", widget: "number", required: false, value_type: "int" }
+
+  - name: "stats"
+    label: "Stats"
+    label_singular: "Stat"
+    folder: "src/content/stats"
+    create: true
+    delete: true
+    identifier_field: "value"
+    fields:
+      - {
+          label: "Value",
+          name: "value",
+          widget: "string",
+          required: true,
+          hint: "e.g. 50+, 3.2M, 48h — stored as text so non-numeric suffixes work.",
+        }
+      - { label: "Label", name: "label", widget: "string", required: false }
+      - { label: "Sort Order", name: "sortOrder", widget: "number", required: false, value_type: "int" }
+
+  - name: "testimonials"
+    label: "Testimonials"
+    label_singular: "Testimonial"
+    folder: "src/content/testimonials"
+    create: true
+    delete: true
+    identifier_field: "name"
+    fields:
+      - { label: "Quote", name: "quote", widget: "text", required: true }
+      - { label: "Name", name: "name", widget: "string", required: false }
+      - { label: "Role / Company", name: "role", widget: "string", required: false }
+      - { label: "Rating", name: "rating", widget: "number", required: false, value_type: "int", min: 1, max: 5 }
+      - { label: "Sort Order", name: "sortOrder", widget: "number", required: false, value_type: "int" }
+
+  - name: "faq"
+    label: "FAQ"
+    label_singular: "FAQ entry"
+    folder: "src/content/faq"
+    create: true
+    delete: true
+    identifier_field: "question"
+    fields:
+      - { label: "Question", name: "question", widget: "string", required: true }
+      - {
+          label: "Answer",
+          name: "answer",
+          widget: "text",
+          required: false,
+          hint: "Leave blank to keep this question out of the live FAQ section until it's answered.",
+        }
+      - { label: "Sort Order", name: "sortOrder", widget: "number", required: false, value_type: "int" }
