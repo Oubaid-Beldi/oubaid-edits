@@ -1,21 +1,45 @@
 ---
-const filters = [
-  { f: "all", label: "All" },
-  { f: "dentistry", label: "Cosmetic Dentistry" },
-  { f: "ads", label: "Meta Ads" },
-  { f: "talking", label: "Talking Heads" },
-  { f: "podcast", label: "Podcast" },
-  { f: "testimonials", label: "Testimonials" },
-];
+import { getCollection } from "astro:content";
 
-const workItems = [
-  { cat: "dentistry", tag: "Cosmetic Dentistry", title: "Smile Makeover — Before/After Reel" },
-  { cat: "ads", tag: "Meta Ads", title: "DTC Skincare — UGC Ad Cut" },
-  { cat: "talking", tag: "Talking Heads", title: "Founder Story — Brand Film" },
-  { cat: "podcast", tag: "Podcast", title: "Weekly Show — Clip Pack Ep. 12" },
-  { cat: "testimonials", tag: "Testimonials", title: "Client Success Story — 60s Cut" },
-  { cat: "dentistry", tag: "Cosmetic Dentistry", title: "Invisalign Journey Recap" },
-];
+// Supports the URL shapes YouTube actually hands out: youtu.be short links,
+// /shorts/, /watch?v=, and /embed/ — so any format pasted into the CMS
+// resolves to the video ID an embed iframe needs.
+function getYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1);
+    if (u.pathname.startsWith("/shorts/")) return u.pathname.split("/")[2] ?? null;
+    if (u.pathname.startsWith("/embed/")) return u.pathname.split("/")[2] ?? null;
+    if (u.searchParams.has("v")) return u.searchParams.get("v");
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+const niches = (await getCollection("niches")).sort(
+  (a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity)
+);
+const nicheById = new Map(niches.map((n) => [n.id, n]));
+
+const filters = [{ slug: "all", label: "All" }, ...niches.map((n) => ({ slug: n.id, label: n.data.name }))];
+
+const workEntries = (await getCollection("work")).sort(
+  (a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity)
+);
+
+// A work item with an unlinked or unresolvable niche still renders — it just
+// won't match any specific filter pill (data-niche stays unset, so only the
+// "All" filter shows it). An item whose URL can't be parsed is dropped
+// rather than rendering a broken embed.
+const workItems = workEntries
+  .map((entry) => ({
+    id: entry.id,
+    title: entry.data.title ?? "Untitled Project",
+    videoId: getYouTubeId(entry.data.youtubeUrl),
+    niche: entry.data.niche ? nicheById.get(entry.data.niche.id) : undefined,
+  }))
+  .filter((item) => item.videoId !== null);
 ---
 
 <section id="work">
@@ -27,28 +51,48 @@ const workItems = [
         Every project below is unlisted footage — filter to see edits relevant to your industry.
       </p>
     </div>
-    <div class="filters">
-      {filters.map((filter, i) => (
-        <button class:list={["filter-btn", { active: i === 0 }]} data-f={filter.f}>
-          {filter.label}
-        </button>
-      ))}
-    </div>
-    <div class="work-grid" id="workGrid">
-      {workItems.map((item) => (
-        <div class="work-card" data-cat={item.cat}>
-          <div class="thumb"><div class="play"></div></div>
-          <div class="work-meta">
-            <span class="work-tag">{item.tag}</span>
-            <span class="work-title">{item.title}</span>
+    {
+      workItems.length === 0 ? (
+        <p class="empty-state">New work is on the way — check back soon.</p>
+      ) : (
+        <>
+          <div class="filters">
+            {filters.map((filter, i) => (
+              <button class:list={["filter-btn", { active: i === 0 }]} data-f={filter.slug}>
+                {filter.label}
+              </button>
+            ))}
           </div>
-        </div>
-      ))}
-    </div>
+          <div class="work-grid" id="workGrid">
+            {workItems.map((item) => (
+              <div class="work-card" data-niche={item.niche?.id}>
+                <div class="thumb">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${item.videoId}`}
+                    title={item.title}
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                  />
+                </div>
+                <div class="work-meta">
+                  {item.niche && <span class="work-tag">{item.niche.data.name}</span>}
+                  <span class="work-title">{item.title}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )
+    }
   </div>
 </section>
 
 <style>
+  .empty-state {
+    color: var(--ink-soft);
+    font-size: 16px;
+    padding: 40px 0;
+  }
   .filters {
     display: flex;
     flex-wrap: wrap;
@@ -83,7 +127,6 @@ const workItems = [
     border-radius: var(--radius);
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
   }
   .work-card:hover {
     transform: translateY(-5px);
@@ -93,25 +136,13 @@ const workItems = [
     aspect-ratio: 16 / 9;
     position: relative;
     background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
-  .thumb .play {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.92);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .thumb .play::before {
-    content: "";
-    border-style: solid;
-    border-width: 8px 0 8px 13px;
-    border-color: transparent transparent transparent var(--blue-600);
-    margin-left: 3px;
+  .thumb iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
   }
   .work-meta {
     padding: 16px 18px;
@@ -144,7 +175,7 @@ const workItems = [
       btn.classList.add("active");
       const f = btn.dataset.f;
       document.querySelectorAll<HTMLElement>(".work-card").forEach((card) => {
-        card.style.display = f === "all" || card.dataset.cat === f ? "" : "none";
+        card.style.display = f === "all" || card.dataset.niche === f ? "" : "none";
       });
     });
   });

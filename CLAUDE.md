@@ -77,7 +77,7 @@ Content lives in `src/content/`. Sveltia CMS's `admin/config.yml` defines the sa
 
 ### File structure
 
-- src/content/config.ts (Astro Content Collections schema — Zod, mirrors the data model)
+- src/content.config.ts (Astro Content Collections schema — Zod, mirrors the data model; not `src/content/config.ts` — Astro 7 requires this project-root-relative path, see session-02 log)
 - src/content/site/ (singleton)
 - src/content/niches/
 - src/content/work/
@@ -108,7 +108,7 @@ Every session ends by:
 
 ### Keeping config in sync
 
-`src/content/config.ts` (Astro's schema) and `admin/config.yml` (Sveltia CMS's form definition) describe the same seven collections. Any time a field is added/renamed/removed in one, update the other in the same session — never leave them out of sync.
+`src/content.config.ts` (Astro's schema) and `admin/config.yml` (Sveltia CMS's form definition) describe the same seven collections. Any time a field is added/renamed/removed in one, update the other in the same session — never leave them out of sync.
 
 ## Session logs
 
@@ -118,61 +118,64 @@ See `/session-logs/` in the repo, one file per session, newest = current state. 
 
 (Overwrite this section at the end of every session — this is the only part of this file expected to change often.)
 
-**Session 2 complete.** Astro Content Collections wired up. Schema lives
-in `src/content.config.ts` (see "Deviation" note below on the path) and
-defines all seven collections from the Data model — Site, Niches, Work,
-Process, Stats, Testimonials, FAQ — each using Astro's `glob()` loader
-pointed at its own `src/content/<name>/` folder, with a Zod schema whose
-required field matches the Data model table exactly (`.optional()` on
-everything else). Every collection has real sample content: one Site
-singleton entry, 5 Niches, 4 Work items, 4 Process steps, 4 Stats, 3
-Testimonials, 4 FAQ entries — mostly ported from the Session 1 mockup
-placeholders so the copy stays consistent.
+**Session 3 complete.** Work section (`src/components/WorkGrid.astro`) now
+reads entirely from the Work and Niches collections — the Session 1
+hardcoded `workItems`/`filters` arrays are gone. Each Work entry's
+`youtubeUrl` is parsed (via a small `getYouTubeId()` helper supporting
+`youtu.be/`, `/shorts/`, `/watch?v=`, and `/embed/` URL shapes) into a
+video ID and rendered as a real unlisted YouTube `<iframe>` embed inside
+the existing `.thumb` card slot, replacing the static play-button overlay.
+Niche filter pills are now generated from the Niches collection itself
+("All" + one pill per niche, sorted by `sortOrder`) instead of a separate
+hardcoded list, so a future CMS-added niche automatically gets a filter
+button with no code change. The filter script matches each card's
+`data-niche` attribute (the linked niche's id) against the clicked
+pill's slug — unchanged logic from Session 1, just re-keyed to real data.
 
-Only the Hero section (`src/components/Hero.astro`) is wired to read from
-content: headline, bio (rendered from the Site entry's Markdown body),
-photo (via `astro:assets` + the schema's `image()` field), and the niche
-chips (from the Niches collection, sorted by `sortOrder`) all come from
-`src/content/site/site.md` and `src/content/niches/*.md` now — no more
-hardcoded arrays in Hero. The old standalone `src/assets/oubaid-profile.jpg`
-was removed since the photo now lives at `src/content/site/oubaid-profile.jpg`,
-referenced by the Site entry's `photo` field.
+Both empty states from the session goal are handled and verified: a Work
+item with no `niche` field (`raw-cut-sample.md`) still renders as a card
+(video, title, no niche tag) and is visible under "All" but correctly
+disappears under every specific niche filter, since its `data-niche`
+attribute is simply absent. A zero-Work-items collection renders a plain
+"New work is on the way — check back soon." message instead of an empty
+grid (`workItems.length === 0` branch — not currently exercised by sample
+content, but present and structurally identical to how Hero already
+guards its required Site entry).
 
-Work grid, Process, Stats, Testimonials, FAQ, and Contact are all still
-hardcoded placeholder arrays exactly as Session 1 left them — untouched
-this session, each waiting on its own future session to wire up.
+Sample Work content was updated with two of Oubaid's real unlisted
+YouTube Shorts (`1bqgKH6ybr4`, `4JghVaMrIXA`, reused across entries the
+same way Session 2's placeholder video was reused) replacing the old
+Rick-Astley placeholder URL on all four existing entries, plus two new
+entries: one for the previously-unused Testimonials niche
+(`client-success-story.md`) and one with no niche at all
+(`raw-cut-sample.md`) specifically to exercise the empty-state behavior
+above. Six Work entries total now.
 
-**Post-session fix (same day):** the two open issues flagged at the end
-of Session 2 are resolved. Headline supports an inline `**accent**`
-marker (parsed in `Hero.astro`, mirrors Markdown bold syntax) so
-`site.md`'s headline can mark which words render in blue — restores the
-mockup's two-tone h1 without a new schema field. Subheadline now renders
-as its own line between the h1 and the bio paragraph
-(`.hero-subheadline`, bold blue-700 text) — sample content in `site.md`
-rewritten to a short tagline distinct from Bio's first-person prose.
+Process, Stats, Testimonials, FAQ, and Contact are all still hardcoded
+placeholder arrays exactly as Session 1 left them — untouched this
+session, each waiting on its own future session to wire up.
 
-`astro check` (0 errors) and `astro build` both pass clean; `npm run dev`
-confirmed working via screenshot showing live Hero headline/bio/photo/niche
-chips.
+`astro check` (0 errors, same pre-existing `z`-deprecation hints as prior
+sessions) and `astro build` both pass clean. `npm run dev` confirmed
+working via a headless Playwright check against the running dev server:
+6 work cards render, each with a live YouTube iframe (`src` resolves to
+the correct video ID); clicking "Cosmetic Dentistry" narrows the grid to
+1 visible card; clicking "All" restores all 6; the no-niche card is
+visible under "All" and correctly hidden under "Meta Ads". Screenshot
+confirmed the grid visually matches the mockup's card/filter layout.
 
 Repo pushed to GitHub (`Oubaid-Beldi/oubaid-edits`) for version control
 only — not connected to any hosting provider.
 
-**Deviation worth knowing about:** CLAUDE.md's file structure lists the
-schema file as `src/content/config.ts`. Astro 7 removed that path (the
-"legacy" folder-inferred collection type) — `astro check`/`astro build`
-now hard-error and require the schema at `src/content.config.ts` with an
-explicit `loader:` per collection instead of `type: 'content'`. Used the
-framework's required path/API; see session-02 log for detail.
-
 **Not yet started:** Sveltia CMS (`admin/`), real Formspree wiring
 (`.env.example` documents the var name only), SEO meta tags,
 responsive/accessibility polish beyond the mockup, Cloudflare Pages
-deploy, wiring Work/Process/Stats/Testimonials/FAQ/Contact to their
+deploy, wiring Process/Stats/Testimonials/FAQ/Contact to their
 collections.
 
 **Next session:** per the Build Plan, likely wire up one or more of the
-remaining sections (Work grid, Process, Stats, Testimonials, FAQ) to their
-content collections — schemas and sample content already exist for all of
-them, only the components' hardcoded arrays need replacing. Still verified
-via `npm run dev` only (no CMS, no deploy).
+remaining sections (Process, Stats, Testimonials, FAQ) to their content
+collections — schemas and sample content already exist for all of them,
+only the components' hardcoded arrays need replacing, following the same
+pattern now established in Hero and WorkGrid. Still verified via
+`npm run dev` only (no CMS, no deploy).
