@@ -46,7 +46,7 @@ Canonical visual reference: `mockup-1-cinematic-light.html` (attached in Session
 - **Content storage:** Markdown/frontmatter files in `src/content/` — no external database. This is your source of truth.
 - **Sveltia CMS** (free, open source) as the CMS dashboard at `/admin` — reads/writes those same content files via the GitHub API. Every save = a real git commit.
 - **Auth:** a self-hosted Cloudflare Worker (`sveltia-cms-auth`, official open-source project) relays the GitHub OAuth login handshake. Stores no content. Runs on Cloudflare Workers' free tier.
-- **Cloudflare Pages** (free) for hosting — chosen over Vercel because Vercel's free Hobby plan restricts to non-commercial use only (this is a commercial site); chosen over Netlify per explicit constraint. Connected directly to the GitHub repo starting Session 5, for auto-deploy on every push — including CMS saves, since those are git commits too. No separate rebuild step needed.
+- **Cloudflare** (free) for hosting — chosen over Vercel because Vercel's free Hobby plan restricts to non-commercial use only (this is a commercial site); chosen over Netlify per explicit constraint. Connected directly to the GitHub repo starting Session 5, for auto-deploy on every push — including CMS saves, since those are git commits too. No separate rebuild step needed. **Deployed as a Workers project serving static assets** (`wrangler.jsonc`, no `main` entry point — Cloudflare's current direct equivalent of the classic separate "Pages" product; see session-05 log for why), not the legacy distinct Cloudflare Pages product — same free tier, same zero-JS static hosting, just Cloudflare's current dashboard path for it.
 - **Formspree** (free) for the contact form.
 - **Unlisted YouTube embeds** for video samples.
 - **GitHub** for source control and content storage.
@@ -92,6 +92,8 @@ Content lives in `src/content/`. Sveltia CMS's `admin/config.yml` defines the sa
 - session-logs/session-NN-slug.md
 - CLAUDE.md
 - .env.example
+- .nvmrc (pins Node for Cloudflare's build environment, added Session 5)
+- wrangler.jsonc (static-assets-only Cloudflare deploy config, added Session 5 — see session-05 log)
 
 ### Commit message format
 
@@ -118,68 +120,85 @@ See `/session-logs/` in the repo, one file per session, newest = current state. 
 
 (Overwrite this section at the end of every session — this is the only part of this file expected to change often.)
 
-**Session 4 complete.** Process, Stats, and Testimonials sections
-(`src/components/Process.astro`, `Stats.astro`, `Testimonials.astro`) now
-read entirely from their content collections — the Session 1 hardcoded
-arrays in all three are gone. All three follow the same
-`getCollection(...).sort((a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity))`
-pattern already established in Hero/WorkGrid: explicit `sortOrder` wins,
-entries missing it sort to the end rather than in random/insertion order.
+**Session 5 complete — the site is live for the first time, and content
+is now complete** (every section reads from its collection; only Sveltia
+CMS remains before Oubaid can edit content without touching code).
 
-- **Process**: the numeral watermark (01, 02, ...) is derived from each
-  step's position in the sorted list, not stored content — it's decorative
-  sequencing, not data. A step with no `description` renders title + numeral
-  only, no empty paragraph gap.
-- **Stats**: `value` (e.g. `"3.2M"`) is split via regex into a leading
-  numeric part (light-blue accent span) and trailing suffix, restoring the
-  mockup's two-tone stat numbers without a second schema field — same
-  technique as Hero's `**accent**` headline marker. A stat with no `label`
-  renders its value with no label line beneath, no empty box.
-- **Testimonials**: star rating renders as filled/outline stars
-  (`★` × rating + `☆` × remainder) only when `rating` is present — omitted
-  entirely otherwise, no guessing a default rating. `role` renders only if
-  present. `name` falls back to "Anonymous Client" if ever omitted (schema
-  allows it, though no sample entry currently omits it).
+**Live URL:** https://oubaid-edits.oubaidbeldi.workers.dev
 
-Sample content: **Process and Stats** kept their existing 4 entries
-(preserving the mockup's fixed 4-card/4-stat layout) but had specific
-fields stripped from two entries each to exercise the required behaviors:
-`process/delivery.md` lost its `description`; `process/rough-cut.md` lost
-its `sortOrder` (now renders last, after Discovery/Revisions/Delivery,
-proving the fallback actually reorders); `stats/niches-served.md` lost its
-`label` (the exact "stat with no Label still shows its Value" case named
-in the goal); `stats/views-generated.md` lost its `sortOrder` (now renders
-last instead of 3rd). **Testimonials** got a genuinely new 4th entry
-(`quick-turnaround-client.md`, no `role`, no `rating`, no `sortOrder`) since
-that grid's 3-column layout naturally accommodates a wrapped 4th card,
-unlike Process/Stats' fixed-count bands.
+**Part 1 — FAQ and Contact wired up:**
+- `src/components/FAQ.astro` reads `getCollection("faq")`, filters out any
+  entry with a blank `answer` (a build-time convention — Answer is
+  optional by design in the schema, not a Sveltia-enforced required
+  field, so an unanswered drafted question simply doesn't render), then
+  sorts by the same `sortOrder ?? Infinity` pattern as every other
+  section. The first visible item opens by default, matching the
+  mockup's single-open accordion.
+- `src/components/Contact.astro` now really submits: `action` points at
+  `import.meta.env.PUBLIC_FORMSPREE_ENDPOINT` (plain HTML POST as a
+  no-JS fallback), with a JS `fetch` handler intercepting submit for an
+  AJAX-style experience — real success/error messages, submit button
+  disabled mid-request, form reset only on success. A hidden `_gotcha`
+  field (Formspree's own documented honeypot convention) is checked
+  client-side too: if it's filled in, the submission is dropped before
+  ever reaching Formspree. Field layout, options list, and info panel are
+  all untouched from the mockup.
+- `PUBLIC_FORMSPREE_ENDPOINT` set locally in a git-ignored `.env` (not
+  committed — `.env.example` still documents the name/placeholder only)
+  and, later in the session, as a Cloudflare environment variable.
+- Sample content: `faq/long-form-youtube.md` added with a question and no
+  answer, specifically to verify the skip behavior — confirmed via
+  Playwright not to render. FAQ accordion, contact success state, contact
+  error state, and honeypot-drop were all verified locally against mocked
+  Formspree responses before touching the real endpoint.
 
-FAQ and Contact are still hardcoded placeholders exactly as Session 1 left
-them — untouched this session.
+**Part 2 — first deploy, with a real detour:** Connecting the repo
+through Cloudflare's current "Create Application" flow did **not** produce
+a classic static Pages deployment. Its Deploy command (`npx wrangler
+deploy`) found no committed Wrangler config, so Wrangler's zero-config
+Astro bootstrapper silently ran `astro add cloudflare` on the first build
+— installing the `@astrojs/cloudflare` **adapter**, switching Astro to SSR
+output, and auto-provisioning an `env.SESSION` KV binding and an
+`env.IMAGES` Cloudflare Images binding this static site has no use for.
+The live symptom was a fully broken hero photo (the on-demand `/_image`
+transform endpoint 404'd). Root-caused by diffing our own `npx astro
+build` output (plain static `/_astro/*.webp`, `output: "static"`, no
+adapter) against the actual Cloudflare build log, which showed the
+adapter being installed mid-build. **Fix:** added `wrangler.jsonc` at the
+repo root — `{ "name": "oubaid-edits", "assets": { "directory": "./dist"
+} }`, deliberately no `main` entry point — so Wrangler serves `dist/` as
+plain static assets with no Worker script and no bindings at all, matching
+this project's actual zero-JS-by-default architecture. Once committed and
+auto-redeployed, the hero photo, FAQ, work embeds, niche filters, stats,
+testimonials, and contact form action were all re-verified byte-for-byte
+against the local build. Also added `.nvmrc` (pinned to `22.12.0`,
+matching `package.json`'s `engines` field) proactively before the first
+deploy, to avoid a plausible Node-version build mismatch.
 
-`astro check` (0 errors, same pre-existing `z`-deprecation hints as prior
-sessions) and `astro build` both pass clean. `npm run dev` confirmed
-working via a headless Playwright check against the running dev server:
-Process order renders `[Discovery, Revisions, Delivery, Rough Cut]`
-(confirming the sortOrder-fallback reorder), Delivery's card has zero `<p>`
-elements while Rough Cut's has one; Stats render `[50+, 12, 48h, 3.2M]` in
-that order with exactly 3 `.stat-lbl` elements (not 4); Testimonials show
-4 cards, the last with zero `.stars` and zero `.p-role` elements. Screenshots
-confirmed all three sections render cleanly with no broken layout or
-visible empty gaps where optional fields are missing.
+Also confirmed clean: no stray branch or pull request was left behind by
+Wrangler's earlier "Workers Builds connected builds will attempt to open a
+pull request to resolve this config name mismatch" warning — `git
+ls-remote` shows only `main`.
 
-Repo pushed to GitHub (`Oubaid-Beldi/oubaid-edits`) for version control
-only — not connected to any hosting provider.
+**Live end-to-end test:** submitted the real contact form against the
+live URL (Playwright, not a mock) — Formspree responded `200 {"ok":true}`
+and the on-page success message displayed. Formspree may send a one-time
+"confirm this submission" email to Oubaid's registered address for the
+very first submission from a new domain; worth checking that inbox if
+later real submissions don't show up as expected.
 
-**Not yet started:** FAQ and Contact still wired to hardcoded placeholders;
-Sveltia CMS (`admin/`), real Formspree wiring (`.env.example` documents the
-var name only), SEO meta tags, responsive/accessibility polish beyond the
-mockup, Cloudflare Pages deploy.
+**Not yet started:** Sveltia CMS (`admin/`), SEO meta tags,
+responsive/accessibility polish beyond the mockup.
 
-**Next session (Session 5):** deployment session per CLAUDE.md's hard
-constraints — this was the last local-only session. Likely also wire FAQ
-to its collection (same pattern as Process/Stats/Testimonials) before or
-as part of going live, and connect Cloudflare Pages / set the
-`PUBLIC_FORMSPREE_ENDPOINT` build variable. Contact form logic (real
-Formspree wiring) and Sveltia CMS remain separately scoped per the Build
-Plan (CMS explicitly slated for Session 6).
+**Optional cleanup, not blocking:** the Cloudflare dashboard's Bindings
+tab may still list the now-unused `env.SESSION` KV namespace and
+`env.IMAGES` binding from the first broken deploy — safe to delete
+manually since nothing in the current `wrangler.jsonc` declares or uses
+them, but they don't cost anything sitting idle either.
+
+**Next session (Session 6, per the Build Plan):** Sveltia CMS
+(`admin/index.html` + `admin/config.yml`), the self-hosted
+`sveltia-cms-auth` Cloudflare Worker for the GitHub OAuth handshake, and
+the `GITHUB_OAUTH_CLIENT_ID`/`SECRET` setup — this is what finally lets
+Oubaid edit every content type from `/admin` without touching code, the
+last unmet piece of CLAUDE.md's hard constraints.
