@@ -91,6 +91,7 @@ Content lives in `src/content/`. Sveltia CMS's `admin/config.yml` defines the sa
 - public/admin/index.html + public/admin/config.yml (Sveltia CMS dashboard, added Session 6; not a repo-root `admin/` — Astro's static build only copies `public/` verbatim into `dist/`, so anything outside it never reaches the live site. See session-06 log.)
 - session-logs/session-NN-slug.md
 - CLAUDE.md
+- PUBLISHING.md (non-technical cheat sheet for Oubaid: logging into `/admin`, editing each of the seven content types, required-field quick reference — added Session 7)
 - .env.example
 - .nvmrc (pins Node for Cloudflare's build environment, added Session 5)
 - wrangler.jsonc (static-assets-only Cloudflare deploy config, added Session 5 — see session-05 log)
@@ -120,101 +121,151 @@ See `/session-logs/` in the repo, one file per session, newest = current state. 
 
 (Overwrite this section at the end of every session — this is the only part of this file expected to change often.)
 
-**Session 6 complete — the CMS dashboard is live and the last unmet hard
-constraint (fully CRUD-editable content, no code required) is now met.**
-Every content type can be created, edited, and deleted from `/admin` by
-Oubaid alone, with each save landing as a real GitHub commit that
-auto-redeploys — verified end-to-end this session, not just configured.
+**Session 7 complete — the site is fully built and polished.** All hard
+constraints from CLAUDE.md are met, the site has a real responsive pass
+(not just the mockup's single tablet breakpoint), SEO/social meta tags,
+and a non-technical publishing guide for Oubaid. Nothing structurally
+blocking remains; the only explicitly out-of-scope item is a custom
+domain (optional Session 8, only if Oubaid acquires one).
 
 **Live site:** https://oubaid-edits.oubaidbeldi.workers.dev
 **CMS dashboard:** https://oubaid-edits.oubaidbeldi.workers.dev/admin/
+**Publishing guide:** `PUBLISHING.md` at the repo root (non-technical,
+written for Oubaid — how to log in, edit each content type, and the
+required field per collection).
+
+**What was built this session:**
+- **Real mobile breakpoints, not just the mockup's one tablet cutoff.**
+  Every component already had the mockup's single `@media(max-width:900px)`
+  breakpoint (ported verbatim in Session 1), which turns 3/4-col grids
+  into 2-col but was never actually checked at phone widths — this
+  session added narrower breakpoints (mostly 560–600px and 420–480px)
+  across Hero, WorkGrid, Process, Stats, Testimonials, and Contact so
+  grids drop to 1-col, padding tightens, and text sizes step down on an
+  actual phone screen. Verified visually at 375px, 320px (the narrowest
+  common phone width), and the 768–900px tablet zone via Playwright
+  screenshots against the running dev server — no horizontal overflow at
+  any width tested.
+- **Fixed a real mobile bug: the nav's hamburger button did nothing.**
+  Since Session 1, `.mobile-toggle` existed with an `aria-label` but no
+  click handler — on any screen under 900px wide, the nav links
+  (`nav ul`) were hidden by CSS and there was no way to reach them except
+  the "Get in touch" CTA. Added a functional mobile menu: a full-viewport
+  takeover panel (not a small dropdown — see gotcha below) that opens on
+  tap, closes when a link is clicked, and keeps `aria-expanded` in sync.
+- **Gotcha: `backdrop-filter` on an ancestor breaks `position: fixed`
+  children.** First implementation nested the mobile menu inside
+  `<header>` and gave it `position: fixed; inset: 0`, expecting it to
+  cover the full viewport. It didn't — it collapsed to `header`'s own
+  ~74px shrink-wrapped height instead. Root cause: per spec, an element
+  with `backdrop-filter` (or `transform`, `filter`, `will-change`, etc.)
+  set to anything other than `none` becomes the **containing block** for
+  its `position: fixed` descendants, same as `transform` does — and
+  `header` already has `backdrop-filter: blur(10px)` for its translucent
+  sticky-nav look (Session 1). Confirmed via `getBoundingClientRect()` in
+  a live Playwright session (the panel's rect was `{top:0, bottom:120}`,
+  not `{top:0, bottom:812}`) before understanding why. Fixed by moving the
+  mobile menu to a sibling `<div id="mobileNavPanel">` outside `<header>`
+  entirely, so its `position: fixed` containing block is the viewport as
+  expected. Worth remembering if `backdrop-filter` or similar is ever
+  added to another ancestor of a fixed-position element.
+- **SEO + social meta tags** (`src/layouts/Layout.astro`, now takes
+  `title`/`description`/`image` props instead of just `title`): meta
+  description, canonical URL, Open Graph (`og:type`, `og:site_name`,
+  `og:title`, `og:description`, `og:url`, `og:image`), Twitter Card tags,
+  `theme-color`, and favicon `<link>` tags (the `favicon.ico`/`.svg`
+  files already existed in `public/` since Session 1's Astro scaffold but
+  were never actually linked from `<head>` — first time they're used).
+  Added `site: 'https://oubaid-edits.oubaidbeldi.workers.dev'` to
+  `astro.config.mjs` so `Astro.site` resolves for canonical/OG absolute
+  URLs. `og:image`/`twitter:image` are generated from the Site entry's
+  Photo via `getImage()` in `index.astro` — confirmed via `astro build`
+  that the static output resolves to a real hashed `/_astro/....jpg` path,
+  not the dev-only `/_image` transform endpoint (the same distinction
+  Session 5 hit with the hero photo).
+- **Accessibility fixes**, mostly found via a Lighthouse pass against the
+  static build (see below): added a `<main>` landmark around the page's
+  primary sections (Nav and Footer stay outside it); `aria-expanded` +
+  `aria-controls` on the FAQ accordion buttons; `aria-pressed` on the
+  Work niche filter buttons; `aria-label` on Contact's form fields (they
+  only had `placeholder`, which isn't a real accessible name); `aria-hidden`
+  on purely decorative elements (Contact's icon glyphs, Testimonials'
+  avatar circle, Process's watermark numerals); `role="img"` +
+  `aria-label` on Testimonials' star rating (a plain `div` can't take
+  `aria-label` without a role — first attempt failed Lighthouse's
+  `aria-prohibited-attr` audit); a more descriptive Hero photo alt text
+  (`Photo of {name}` instead of just `{name}`).
+- **YouTube embeds switched to `youtube-nocookie.com`** (privacy-enhanced
+  mode) instead of `youtube.com` — reduces third-party cookie-setting on
+  page load. Flagged by Lighthouse's Best Practices audit
+  (`inspector-issues`); a same-origin cookie notice from YouTube itself
+  still appears even on the nocookie domain (inherent to embedding any
+  YouTube content, not fixable from this repo) but this is still a real
+  improvement over the default domain.
+- **`PUBLISHING.md`** added at the repo root — a non-technical cheat
+  sheet for Oubaid: how to log into `/admin`, how editing/creating/
+  deleting entries works per collection, a one-line required-field
+  reference table for all seven collections, and an explicit note that
+  saves go live automatically within a minute or two (no separate
+  rebuild step) since every CMS save is a real GitHub commit that
+  Cloudflare's connected build auto-deploys.
+
+**Lighthouse pass** (mobile config, run via `npx lighthouse` against the
+static `astro build` output served by `astro preview`, not the dev
+server — the dev server's unbundled/unminified output wouldn't reflect
+what's actually deployed):
+- Before fixes: Performance 98, Accessibility 90, Best Practices 96, SEO 100.
+- After fixes: Performance 98, **Accessibility 96**, **Best Practices 96**
+  (same score, but the underlying YouTube-cookie note changed from
+  default-domain to nocookie-domain), SEO 100.
+- **Two audits deliberately left failing, both reviewed and judged not
+  worth "fixing" at the cost of correctness or design intent:**
+  - `color-contrast` on Process's watermark numerals (`#e8f0fe` on white,
+    ~1.14:1). This is CLAUDE.md's own confirmed design language — "4-card
+    process strip with **watermark numerals**" — a deliberately faint
+    decorative background number, now also marked `aria-hidden="true"`
+    this session to formalize that it's non-content. WCAG 1.4.3 itself
+    exempts "text that is purely decorative and not intended to be read
+    (e.g., watermark text)" from the contrast requirement — this is a
+    named example in the spec, not a workaround. Cranking up the color to
+    satisfy automated tooling would fight the confirmed mockup rather
+    than fix a real accessibility problem.
+  - `inspector-issues` (Cookie) on the two YouTube embeds — see above;
+    inherent to embedding YouTube content at all, and Work section video
+    embeds are an explicit, non-negotiable part of CLAUDE.md's chosen
+    stack ("Unlisted YouTube embeds for video samples").
+- Followed the instruction to fix real issues without chasing a perfect
+  score: the two `aria-prohibited-attr` and `landmark-one-main` findings
+  (both real, both cheap, both fixed above) were addressed; these two
+  were reviewed and consciously left as-is instead.
+
+**`/admin` on a phone-width viewport:** Sveltia CMS's own login screen
+renders responsively out of the box (single-column, full-width tappable
+buttons, verified via Playwright at 375px) — this is Sveltia's own UI,
+not something this repo's code controls beyond `config.yml`'s field
+definitions, which don't affect layout. Full editing-UI verification
+(post-login) on a real phone is still worth Oubaid double-checking
+firsthand next time he's editing content from his phone, since GitHub
+OAuth login can't be completed non-interactively in this environment.
+
+**Gotcha carried forward for future sessions:** `astro dev`'s dev server
+404s on `/admin/` (needs the explicit `/admin/index.html` path) — this is
+a dev-server-only quirk in how it resolves directory-index requests for
+`public/`-copied static files; `astro preview` (serving the real
+`dist/` build) and the live Cloudflare deployment both correctly resolve
+`/admin/` to `/admin/index.html` with a `200`, matching Session 6's
+confirmed live behavior. Not a bug, just don't be alarmed by a 404 on
+`localhost:4321/admin/` specifically during `npm run dev`.
+
+**Not yet started:** custom domain (optional Session 8, only if Oubaid
+has acquired one by then). No other explicitly-deferred items remain.
+
 **Auth Worker:** https://sveltia-cms-auth.oubaidbeldi.workers.dev (Oubaid's
 fork of github.com/sveltia/sveltia-cms-auth)
-**GitHub OAuth App callback URL:** `https://sveltia-cms-auth.oubaidbeldi.workers.dev/callback`
 
-**What was built:**
-- `public/admin/index.html` + `public/admin/config.yml` — **not** a
-  repo-root `admin/` folder (CLAUDE.md's File structure section said that;
-  corrected this session, same class of doc-vs-reality gap as the
-  `content.config.ts` path in Session 2). Astro's static build only
-  copies `public/` verbatim into `dist/`; anything outside it is invisible
-  to the live site.
-- `config.yml` defines all seven collections from the Data model table,
-  each field's `required` matching exactly, widget types chosen per field
-  (`string`/`text`/`number`/`boolean`/`image`/`markdown`/`relation`). Bio
-  maps to the special `body` field (markdown widget) since it's the
-  entry's Markdown body, not frontmatter, per Session 2's schema decision.
-  Site's Photo field uses `media_folder: ""` / `public_folder: "./"` to
-  keep uploads co-located with `site.md` (matching the existing
-  `./oubaid-profile.jpg` convention) rather than a generic uploads folder.
-- **Work's Niche relation is keyed on `value_field: "slug"`**, not
-  filename — matching the Session 2 gotcha that Astro's `glob()` loader
-  uses a Niche's `slug` frontmatter field as its ID when present, not its
-  filename. Added a `hint` on Niches' Slug field warning that a new niche
-  needs a Slug filled in before Work items can be assigned to it, since
-  this is the one place the CMS's UI can't self-enforce something the
-  underlying data model actually requires for correctness.
-- A few other `hint`s surface code-level conventions the CMS UI has no
-  other way to reveal: Headline's `**word**` accent-marker syntax (Hero.astro
-  parses it), and Answer's blank-means-hidden convention (FAQ.astro
-  filters it out).
-- `email` (Site) and `youtubeUrl` (Work, the required field) both get
-  `pattern` validation in the CMS — catching a malformed value at save
-  time instead of letting it through to break the next Astro build
-  (`z.string().email()` / `z.string().url()` in the schema would fail at
-  build time, not CMS-save time, without this).
-
-**GitHub OAuth App + `sveltia-cms-auth` Worker setup** (Oubaid did the
-actual clicking in both GitHub and Cloudflare dashboards):
-- OAuth App homepage URL = the live site; callback URL predicted in
-  advance as `https://sveltia-cms-auth.oubaidbeldi.workers.dev/callback`,
-  which only works because the Worker was deliberately named
-  `sveltia-cms-auth` on deploy (Cloudflare's account subdomain,
-  `oubaidbeldi`, was already known from Session 5's live URL).
-- Deploying the Worker itself was uneventful (unlike Session 5's Astro
-  detour) — it's a plain committed Worker script with its own minimal
-  `wrangler.toml`, no framework to auto-detect.
-- **Getting the secrets to actually bind took several attempts** — see
-  session-06 log for the full sequence. Short version: Cloudflare's
-  dashboard silently splits **Production** vs **Preview** environment
-  variables (same trap as Session 5's Formspree var), and the two secrets
-  were initially saved under the wrong scope. Confirmed by reading the
-  Worker's actual source (`src/index.js` on GitHub) to verify it does
-  nothing more exotic than `const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } = env`
-  — once correctly scoped to Production, `/auth?provider=github` went
-  from a `MISCONFIGURED_CLIENT` error straight to a proper `302` redirect
-  to GitHub's OAuth authorize endpoint with the right `client_id`.
-
-**End-to-end test, both required behaviors confirmed live:**
-- **Required field blocks a bad save**: cleared an FAQ entry's Question
-  (the collection's required field) and attempted to save — Sveltia
-  refused with a validation error; entry discarded unsaved, untouched.
-- **A real save round-trips**: edited the Site entry's Bio via `/admin`,
-  saved, and it landed as a real commit (`a1fd8a1 Update Site "site"`) on
-  GitHub within seconds, with the live site auto-redeploying and showing
-  the change — no manual rebuild step, confirmed by polling the live URL
-  until the new text appeared. The test edit was then reverted via a
-  normal git commit (`cd7ddfd`) since it wasn't meant to be permanent
-  copy.
-- Noted for future sessions: Sveltia rewrites the *entire* frontmatter
-  block on every save (e.g. `name: "Oubaid Beldi"` → `name: Oubaid Beldi`,
-  dropping quotes it doesn't need) — cosmetic YAML-serialization style,
-  not a content change, but future diffs on CMS-edited files will look
-  noisier than a single-field change actually was.
-
-**Not yet started:** SEO meta tags, responsive/accessibility polish
-beyond the mockup, custom domain.
-
-**Optional cleanup, not blocking:** same as noted in Session 5 — the
-`env.SESSION`/`env.IMAGES` bindings from that session's broken first
-deploy attempt may still be listed on the main site's Worker (harmless,
-unused, no cost). New this session: the `sveltia-cms-auth` fork
-accumulated a few throwaway "Empty commit message" / "test" commits while
-troubleshooting the Production/Preview secret scoping — harmless, but
-Oubaid may want to squash or ignore them if he ever looks at that fork's
-history.
-
-**Next session, per the Build Plan:** SEO meta tags and a
-responsive/accessibility polish pass are the two explicitly-deferred
-items with no session assigned yet — either is a reasonable next pick.
-No further hard constraints from CLAUDE.md remain unmet.
+**Optional cleanup, not blocking, carried forward from Sessions 5–6:**
+the main site's Worker may still list unused `env.SESSION`/`env.IMAGES`
+bindings from Session 5's broken first deploy attempt, and the
+`sveltia-cms-auth` fork has a handful of throwaway troubleshooting
+commits from Session 6. Both harmless, no cost, purely cosmetic
+tidiness if Oubaid ever wants to clean them up.

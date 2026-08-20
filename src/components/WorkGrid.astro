@@ -58,7 +58,11 @@ const workItems = workEntries
         <>
           <div class="filters">
             {filters.map((filter, i) => (
-              <button class:list={["filter-btn", { active: i === 0 }]} data-f={filter.slug}>
+              <button
+                class:list={["filter-btn", { active: i === 0 }]}
+                data-f={filter.slug}
+                aria-pressed={i === 0 ? "true" : "false"}
+              >
                 {filter.label}
               </button>
             ))}
@@ -68,7 +72,7 @@ const workItems = workEntries
               <div class="work-card" data-niche={item.niche?.id}>
                 <div class="thumb">
                   <iframe
-                    src={`https://www.youtube.com/embed/${item.videoId}`}
+                    src={`https://www.youtube-nocookie.com/embed/${item.videoId}`}
                     title={item.title}
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowfullscreen
@@ -166,13 +170,23 @@ const workItems = workEntries
       grid-template-columns: 1fr 1fr;
     }
   }
+
+  @media (max-width: 600px) {
+    .work-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 
 <script>
   document.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach((b) => {
+        b.classList.remove("active");
+        b.setAttribute("aria-pressed", "false");
+      });
       btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
       const f = btn.dataset.f;
       document.querySelectorAll<HTMLElement>(".work-card").forEach((card) => {
         card.style.display = f === "all" || card.dataset.niche === f ? "" : "none";

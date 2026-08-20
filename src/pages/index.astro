@@ -1,4 +1,6 @@
 ---
+import { getImage } from "astro:assets";
+import { getEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import Nav from "../components/Nav.astro";
 import Hero from "../components/Hero.astro";
@@ -9,16 +11,30 @@ import Testimonials from "../components/Testimonials.astro";
 import FAQ from "../components/FAQ.astro";
 import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
+
+const site = await getEntry("site", "site");
+const ogImage = site?.data.photo
+  ? await getImage({ src: site.data.photo, width: 960, format: "jpg" })
+  : undefined;
+
+const description =
+  "Oubaid Edits — freelance video editing for cosmetic dentistry, Meta ads, talking-head content, podcasts, and testimonials. Browse work by niche and get in touch.";
 ---
 
-<Layout title="Oubaid Edits — Freelance Video Editor">
+<Layout
+  title="Oubaid Edits — Freelance Video Editor"
+  description={description}
+  image={ogImage?.src}
+>
   <Nav />
-  <Hero />
-  <WorkGrid />
-  <Process />
-  <Stats />
-  <Testimonials />
-  <FAQ />
-  <Contact />
+  <main>
+    <Hero />
+    <WorkGrid />
+    <Process />
+    <Stats />
+    <Testimonials />
+    <FAQ />
+    <Contact />
+  </main>
   <Footer />
 </Layout>

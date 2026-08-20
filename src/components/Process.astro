@@ -15,7 +15,7 @@ const steps = (await getCollection("process")).sort(
     <div class="process-strip">
       {steps.map((step, i) => (
         <div class="process-card">
-          <div class="process-num">{String(i + 1).padStart(2, "0")}</div>
+          <div class="process-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</div>
           <h3>{step.data.title}</h3>
           {step.data.description && <p>{step.data.description}</p>}
         </div>
@@ -59,6 +59,12 @@ const steps = (await getCollection("process")).sort(
   @media (max-width: 900px) {
     .process-strip {
       grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .process-strip {
+      grid-template-columns: 1fr;
     }
   }
 </style>

@@ -19,8 +19,10 @@ const faqs = (await getCollection("faq"))
     <div class="faq-list">
       {faqs.map((item, i) => (
         <div class:list={["faq-item", { open: i === 0 }]}>
-          <button class="faq-q">{item.data.question} <span class="plus">+</span></button>
-          <div class="faq-a">{item.data.answer}</div>
+          <button class="faq-q" aria-expanded={i === 0 ? "true" : "false"} aria-controls={`faq-a-${item.id}`}>
+            {item.data.question} <span class="plus" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-a" id={`faq-a-${item.id}`}>{item.data.answer}</div>
         </div>
       ))}
     </div>
@@ -76,7 +78,11 @@ const faqs = (await getCollection("faq"))
       const item = q.parentElement;
       const wasOpen = item?.classList.contains("open");
       document.querySelectorAll(".faq-item").forEach((i) => i.classList.remove("open"));
-      if (!wasOpen) item?.classList.add("open");
+      document.querySelectorAll<HTMLButtonElement>(".faq-q").forEach((b) => b.setAttribute("aria-expanded", "false"));
+      if (!wasOpen) {
+        item?.classList.add("open");
+        q.setAttribute("aria-expanded", "true");
+      }
     });
   });
 </script>

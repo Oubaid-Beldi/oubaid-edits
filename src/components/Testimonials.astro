@@ -15,10 +15,14 @@ const testimonials = (await getCollection("testimonials")).sort(
     <div class="test-grid">
       {testimonials.map((t) => (
         <div class="test-card">
-          {t.data.rating && <div class="stars">{"★".repeat(t.data.rating) + "☆".repeat(5 - t.data.rating)}</div>}
+          {t.data.rating && (
+            <div class="stars" role="img" aria-label={`${t.data.rating} out of 5 stars`}>
+              <span aria-hidden="true">{"★".repeat(t.data.rating) + "☆".repeat(5 - t.data.rating)}</span>
+            </div>
+          )}
           <p class="test-quote">"{t.data.quote}"</p>
           <div class="test-person">
-            <div class="avatar"></div>
+            <div class="avatar" aria-hidden="true"></div>
             <div>
               <div class="p-name">{t.data.name ?? "Anonymous Client"}</div>
               {t.data.role && <div class="p-role">{t.data.role}</div>}
@@ -76,6 +80,12 @@ const testimonials = (await getCollection("testimonials")).sort(
   @media (max-width: 900px) {
     .test-grid {
       grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .test-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

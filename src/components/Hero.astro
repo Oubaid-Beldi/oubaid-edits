@@ -36,7 +36,7 @@ const headlineParts = (site.data.headline ?? "").split(/\*\*(.+?)\*\*/);
     <div class="hero-photo">
       <div class="photo-card">
         {site.data.photo && (
-          <Image src={site.data.photo} alt={site.data.name} width={960} height={1200} loading="eager" />
+          <Image src={site.data.photo} alt={`Photo of ${site.data.name}`} width={960} height={1200} loading="eager" />
         )}
       </div>
       <div class="float-badge">
@@ -199,6 +199,31 @@ const headlineParts = (site.data.headline ?? "").split(/\*\*(.+?)\*\*/);
     }
     h1 {
       font-size: 38px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero {
+      padding: 70px 0 56px;
+    }
+    h1 {
+      font-size: 30px;
+    }
+    .hero-sub,
+    .hero-subheadline {
+      max-width: none;
+    }
+    .hero-ctas {
+      flex-direction: column;
+    }
+    .btn-primary,
+    .btn-ghost {
+      text-align: center;
+    }
+    .float-badge {
+      left: 12px;
+      bottom: -14px;
+      padding: 10px 14px;
     }
   }
 </style>

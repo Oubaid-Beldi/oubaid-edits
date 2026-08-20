@@ -22,21 +22,21 @@ const formspreeEndpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT;
           Fill out the form or reach out directly — I usually reply within a day.
         </p>
         <div class="contact-info-item">
-          <div class="ci-icon">@</div>
+          <div class="ci-icon" aria-hidden="true">@</div>
           <div>
             <div class="ci-label">Email</div>
             <div class="ci-val">hello@oubaidedits.com</div>
           </div>
         </div>
         <div class="contact-info-item">
-          <div class="ci-icon">in</div>
+          <div class="ci-icon" aria-hidden="true">in</div>
           <div>
             <div class="ci-label">Instagram</div>
             <div class="ci-val">@oubaidedits</div>
           </div>
         </div>
         <div class="contact-info-item">
-          <div class="ci-icon">⏱</div>
+          <div class="ci-icon" aria-hidden="true">⏱</div>
           <div>
             <div class="ci-label">Response time</div>
             <div class="ci-val">Within 24 hours</div>
@@ -45,13 +45,17 @@ const formspreeEndpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT;
       </div>
       <form id="contactForm" action={formspreeEndpoint} method="POST">
         <div class="form-row">
-          <input type="text" name="name" placeholder="Your name" required />
-          <input type="email" name="email" placeholder="Email address" required />
+          <input type="text" name="name" aria-label="Your name" placeholder="Your name" required />
+          <input type="email" name="email" aria-label="Email address" placeholder="Email address" required />
         </div>
-        <select name="topic">
+        <select name="topic" aria-label="What do you need help with?">
           {options.map((opt) => <option>{opt}</option>)}
         </select>
-        <textarea name="message" placeholder="Tell me a bit about your project..."></textarea>
+        <textarea
+          name="message"
+          aria-label="Tell me a bit about your project"
+          placeholder="Tell me a bit about your project..."
+        ></textarea>
         <input
           type="text"
           name="_gotcha"
@@ -182,6 +186,16 @@ const formspreeEndpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT;
 
   @media (max-width: 900px) {
     .contact-grid {
+      grid-template-columns: 1fr;
+      padding: 36px 28px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .contact-grid {
+      padding: 28px 20px;
+    }
+    .form-row {
       grid-template-columns: 1fr;
     }
   }

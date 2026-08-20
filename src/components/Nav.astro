@@ -18,9 +18,17 @@ const links = [
       </ul>
     </nav>
     <a href="#contact" class="cta-btn">Get in touch</a>
-    <button class="mobile-toggle" aria-label="Toggle menu">☰</button>
+    <button class="mobile-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileNavPanel">☰</button>
   </div>
 </header>
+
+<div id="mobileNavPanel" class="mobile-nav-panel">
+  <ul>
+    {links.map((link) => (
+      <li><a href={link.href}>{link.label}</a></li>
+    ))}
+  </ul>
+</div>
 
 <style>
   header {
@@ -89,6 +97,9 @@ const links = [
     font-size: 22px;
     cursor: pointer;
   }
+  .mobile-nav-panel {
+    display: none;
+  }
 
   @media (max-width: 900px) {
     nav ul {
@@ -97,5 +108,58 @@ const links = [
     .mobile-toggle {
       display: block;
     }
+    .mobile-nav-panel.open {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background: var(--paper);
+      padding: 96px 28px 24px;
+      overflow-y: auto;
+    }
+    .mobile-nav-panel ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .mobile-nav-panel a {
+      display: block;
+      padding: 12px 0;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .logo {
+      font-size: 16px;
+    }
+    .cta-btn {
+      padding: 9px 14px;
+      font-size: 13px;
+    }
   }
 </style>
+
+<script>
+  const panel = document.getElementById("mobileNavPanel");
+  const toggle = document.querySelector<HTMLButtonElement>(".mobile-toggle");
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = panel?.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(!!isOpen));
+  });
+
+  panel?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      panel.classList.remove("open");
+      toggle?.setAttribute("aria-expanded", "false");
+    });
+  });
+</script>
