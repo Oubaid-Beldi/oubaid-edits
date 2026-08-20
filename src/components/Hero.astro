@@ -9,13 +9,19 @@ const { Content: Bio } = await render(site);
 const niches = (await getCollection("niches")).sort(
   (a, b) => (a.data.sortOrder ?? Infinity) - (b.data.sortOrder ?? Infinity)
 );
+
+// Headline supports a lightweight **accent** marker (mirrors Markdown's
+// bold syntax) so a CMS editor can mark which words render in blue,
+// matching the mockup's two-tone h1 without a second schema field.
+const headlineParts = (site.data.headline ?? "").split(/\*\*(.+?)\*\*/);
 ---
 
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
       <div class="kicker">Freelance Video Editor</div>
-      <h1>{site.data.headline}</h1>
+      <h1>{headlineParts.map((part, i) => (i % 2 === 1 ? <span>{part}</span> : part))}</h1>
+      {site.data.subheadline && <p class="hero-subheadline">{site.data.subheadline}</p>}
       <div class="hero-sub">
         <Bio />
       </div>
@@ -95,6 +101,13 @@ const niches = (await getCollection("niches")).sort(
   }
   h1 span {
     color: var(--blue-600);
+  }
+  .hero-subheadline {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--blue-700);
+    margin: 0 0 14px;
+    max-width: 480px;
   }
   .hero-sub {
     font-size: 18px;

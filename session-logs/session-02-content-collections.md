@@ -150,18 +150,45 @@ stay hardcoded this session. Still local-only, verified via `npm run dev`.
 
 ## Open issues
 
-- **Subheadline field has no UI consumer yet** (see schema decision
-  above) — it's schema-valid and CMS-editable once Session 6 lands, but
-  nothing on the page reads it. Flag for whoever next touches Hero or the
-  mockup.
-- **Headline's blue-accent span is lost** (see decisions above) — a small
-  visual gap versus the mockup, worth Oubaid's input on whether it matters
-  enough to solve (e.g., a second short "accent" field) or is fine as
-  plain text.
+- ~~Subheadline field has no UI consumer yet~~ — **resolved same day, see
+  addendum below.**
+- ~~Headline's blue-accent span is lost~~ — **resolved same day, see
+  addendum below.**
 - CLAUDE.md's File structure section still says `src/content/config.ts`;
   should be corrected to `src/content.config.ts` to match what Astro 7
   actually requires (deferred rather than editing CLAUDE.md's structural
   spec unprompted mid-session).
+
+## Addendum — same-day fix for the two open issues above
+
+Oubaid asked to fix both right after Session 2 wrapped, before moving on.
+
+- **Headline accent restored without a new schema field.** Rather than
+  adding a "Headline Accent" field the Data model table doesn't call for,
+  `Hero.astro` now parses the `headline` string for a `**...**` marker
+  (mirrors Markdown bold syntax — familiar, no parser dependency needed)
+  and wraps the matched text in the `<span>` the mockup's CSS already
+  styles blue (`h1 span { color: var(--blue-600); }`, unused since the
+  Session 2 rewrite). `site.md`'s headline is now
+  `"Video edits that turn **viewers into clients.**"`. Any future content
+  edit — CMS or file — controls the accent the same way, no code change
+  needed.
+- **Subheadline now rendered.** Added between the `<h1>` and the Bio
+  paragraph as its own line (`.hero-subheadline` — bold, `--blue-700`,
+  17px) so the three text fields read as a hierarchy: headline (biggest,
+  two-tone) → subheadline (short, bold tagline) → bio (longer, first-person
+  prose, `--ink-soft`). `site.md`'s subheadline was also rewritten —
+  the original sample text ("Freelance video editor for dentists,
+  agencies, podcasters...") was near-duplicate of the Bio paragraph now
+  that Bio moved into the same content entry; replaced with a distinct
+  short tagline ("Fast turnarounds, consistent quality, content built to
+  convert.") so the two fields don't read as repetitive once both are
+  visible on the page.
+- Verified via `astro check` (0 errors, same pre-existing `z`-deprecation
+  hints as before), `astro build` (clean), and a fresh Playwright
+  screenshot of the running dev server confirming both fixes visually:
+  "viewers into clients." renders in blue, and the new subheadline line
+  is visible between the headline and bio.
 
 ## Starting point for next session
 

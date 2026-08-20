@@ -142,6 +142,15 @@ Work grid, Process, Stats, Testimonials, FAQ, and Contact are all still
 hardcoded placeholder arrays exactly as Session 1 left them — untouched
 this session, each waiting on its own future session to wire up.
 
+**Post-session fix (same day):** the two open issues flagged at the end
+of Session 2 are resolved. Headline supports an inline `**accent**`
+marker (parsed in `Hero.astro`, mirrors Markdown bold syntax) so
+`site.md`'s headline can mark which words render in blue — restores the
+mockup's two-tone h1 without a new schema field. Subheadline now renders
+as its own line between the h1 and the bio paragraph
+(`.hero-subheadline`, bold blue-700 text) — sample content in `site.md`
+rewritten to a short tagline distinct from Bio's first-person prose.
+
 `astro check` (0 errors) and `astro build` both pass clean; `npm run dev`
 confirmed working via screenshot showing live Hero headline/bio/photo/niche
 chips.
