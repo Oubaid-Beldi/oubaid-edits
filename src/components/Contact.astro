@@ -83,7 +83,7 @@ const formspreeEndpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT;
     display: grid;
     grid-template-columns: 0.9fr 1.1fr;
     gap: 50px;
-    background: #fff;
+    background: var(--white);
     border: 1px solid var(--line);
     border-radius: 24px;
     padding: 50px;
@@ -136,6 +136,7 @@ const formspreeEndpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT;
     font-size: 14.5px;
     font-family: inherit;
     background: var(--blue-50);
+    color: var(--ink);
   }
   input:focus,
   textarea:focus,
@@ -181,7 +182,7 @@ const formspreeEndpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT;
     color: var(--blue-600);
   }
   .form-error {
-    color: #c0362c;
+    color: var(--error);
   }
 
   @media (max-width: 900px) {

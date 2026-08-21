@@ -31,13 +31,14 @@ const steps = (await getCollection("process")).sort(
     gap: 20px;
   }
   .process-card {
-    background: #fff;
+    background: var(--white);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 26px 22px;
     position: relative;
   }
   .process-num {
+    font-family: "JetBrains Mono", monospace;
     font-size: 34px;
     font-weight: 800;
     color: var(--blue-100);

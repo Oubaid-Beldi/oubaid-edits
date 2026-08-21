@@ -1,7 +1,7 @@
 ---
 name: Oubaid Beldi
-headline: Video edits that turn **viewers into clients.**
-subheadline: Fast turnarounds, consistent quality, content built to convert.
+headline: Probably **your last video editor.**
+subheadline: I'm Oubaid — I edit video for dentists, agencies, podcasters, and founders who need content that actually gets clients to say yes.
 photo: ./oubaid-profile.jpg
 email: oubaidbeldi@gmail.com
 instagramHandle: '@oubaidedits'

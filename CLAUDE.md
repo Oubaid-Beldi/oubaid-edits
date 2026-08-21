@@ -18,27 +18,50 @@ Sections: Hero (photo + bio, no reel yet), Work (video grid filterable by niche,
 
 ## Confirmed design direction
 
-Mockup 1 — "Cinematic Light." Light paper background, blue accents, clean/trustworthy first, cinematic second.
+Mockup 7 — "Refined Slate/Blue Palette" (final, Aug 21 2026 — supersedes Mockup 1). Same structure/layout as the originally confirmed Mockup 1, plus two additions: a global scroll-driven timeline scrubber bar, and a warm near-black dark mode — layered on top of a refined light-mode color system (slate grays + vivid blue instead of the original blue/navy set). Sessions 1–7's layout needed no rework; Session 8 added the scrubber, the light/dark theme toggle, and updated the light-mode token values.
+
+**Hero copy (updated Aug 21, 2026, live since Session 8):** Headline "Probably **your last video editor.**" / Subheadline "I'm Oubaid — I edit video for dentists, agencies, podcasters, and founders who need content that actually gets clients to say yes." Site collection's existing Headline/Subheadline fields — editable via `/admin`.
 
 ### Design tokens
 
-| Token | Value | Use |
-|---|---|---|
-| --paper | #f7f8fb | Page background |
-| --ink | #0d1526 | Primary text |
-| --ink-soft | #4b5568 | Secondary text |
-| --blue-600 | #1a56db | Primary accent, CTAs, links |
-| --blue-700 | #12409e | Darker accent (icons, hover) |
-| --blue-900 | #0b1a33 | Stats band background, gradients |
-| --blue-100 | #e8f0fe | Chip/badge backgrounds |
-| --blue-50 | #f4f8ff | Form input backgrounds |
-| --line | #e3e7ef | Borders |
+| Token      | Value   | Use                              |
+| ---------- | ------- | -------------------------------- |
+| --paper    | #f8fafc | Page background                  |
+| --ink      | #0f172a | Primary text                     |
+| --ink-soft | #64748b | Secondary text                   |
+| --blue-600 | #2563eb | Primary accent, CTAs, links      |
+| --blue-700 | #1d4ed8 | Darker accent (icons, hover)     |
+| --blue-900 | #0f172a | Stats band background, gradients |
+| --blue-100 | #dbeafe | Chip/badge backgrounds           |
+| --blue-50  | #eff6ff | Form input backgrounds           |
+| --line     | #e2e8f0 | Borders                          |
 
-Radius: 16px cards / 10px buttons+inputs / 999px pills. Font: system sans stack. H1 ~52px/800/-0.03em. H2 ~36px/800. Eyebrow labels: 12.5px/700/uppercase/0.08em tracking. Section spacing: 88px vertical, 1180px max content width.
+### Dark mode tokens
 
-Component patterns: sticky blurred nav, hero split (headline+CTA left, photo card + floating stat badge right), pill niche-filter buttons, 3-col work grid with play-button overlay, 4-card process strip with watermark numerals, dark navy stats band, 3-col testimonial cards with star ratings, single-open FAQ accordion, 2-col contact panel.
+Applied under a `data-theme="dark"` attribute on `<html>` (added Session 8). Warm near-black palette; blue accent values shift lighter for contrast against the dark background. `--header-bg`/`--scrubber-bg` are new tokens (translucent blurred backgrounds for the nav and scrubber bar) with no light/dark-shared name — they're defined directly per theme.
 
-Canonical visual reference: `mockup-1-cinematic-light.html` (attached in Session 1).
+| Token                | Light value          | Dark value           |
+| --------------------- | -------------------- | --------------------- |
+| --paper                | #f8fafc               | #0c0b0a                |
+| --white (cards/panels) | #ffffff                | #17140f                |
+| --blue-50 (inputs)     | #eff6ff                | #151b2b                |
+| --ink                  | #0f172a                | #eee7db                |
+| --ink-soft              | #64748b                | #8c8375                |
+| --blue-600              | #2563eb                | #3b82f6                |
+| --blue-700              | #1d4ed8                | #2f6fe0                |
+| --blue-900              | #0f172a                | #0b1a33                |
+| --blue-100              | #dbeafe                | #1b2740                |
+| --line                  | #e2e8f0                | #35301f                |
+| --header-bg             | rgba(248,250,252,.85) | rgba(12,11,10,.85)     |
+| --scrubber-bg           | rgba(248,250,252,.92) | rgba(12,11,10,.92)     |
+
+Theme resolution: a manually-saved choice in `localStorage` (`theme` key) takes precedence; otherwise falls back to `prefers-color-scheme`. Set via a small inline `<script>` early in `Layout.astro`'s `<head>`, before first paint, to avoid a flash of the wrong theme. Toggle button lives in `Nav.astro` (inline SVG sun/moon icons, no new dependency).
+
+Radius: 16px cards / 10px buttons+inputs / 999px pills. Font: system sans stack. H1 ~52px/800/-0.03em. H2 ~36px/800. Eyebrow labels: 12.5px/700/uppercase/0.08em tracking. Section spacing: 88px vertical, 1180px max content width. JetBrains Mono (Google Fonts) is scoped narrowly to the scrubber's label/timecode, eyebrow labels, the hero kicker pill, and process-step numerals — never used for headings or body copy.
+
+Component patterns: a global scroll-driven timeline scrubber bar (pulsing dot + mono label + progress fill + live mm:ss counter), fixed 34px tall, pinned above the nav in both themes, added Session 8 (`src/components/Scrubber.astro`); sticky blurred nav (top offset 34px, sitting below the scrubber, added Session 8 — was `top: 0` through Session 7), hero split (headline+CTA left, photo card + floating stat badge right), pill niche-filter buttons, 3-col work grid (real YouTube embeds, not the mockup's play-button-overlay placeholder — see session-03 log), 4-card process strip with watermark numerals, dark navy stats band, 3-col testimonial cards with star ratings, single-open FAQ accordion, 2-col contact panel.
+
+Canonical visual reference: `mockup-7-refined-palette.html` (attached Session 8) — final layout, palette, scrubber, and dark mode all in one file. `mockup-1-cinematic-light.html` (attached Session 1, since removed from the repo) documented the original Sessions 1–7 layout only.
 
 ## Chosen stack
 
@@ -71,7 +94,7 @@ Content lives in `src/content/`. Sveltia CMS's `admin/config.yml` defines the sa
 
 ### Environment variables / secrets
 
-- `PUBLIC_FORMSPREE_ENDPOINT` — the Formspree form endpoint URL. Set as a Cloudflare Pages build environment variable from Session 5 onward. Safe to expose client-side (Astro's `PUBLIC_` prefix convention) since it's already visible in the rendered HTML form action.
+- `PUBLIC_FORMSPREE_ENDPOINT` — the Formspree form endpoint URL. Set as a Cloudflare Workers build environment variable from Session 5 onward. Safe to expose client-side (Astro's `PUBLIC_` prefix convention) since it's already visible in the rendered HTML form action.
 - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — credentials for the GitHub OAuth App used by the CMS login (corrected from this file's original placeholder names `GITHUB_OAUTH_CLIENT_ID`/`SECRET` — these are the exact names the `sveltia-cms-auth` Worker's source reads from `env`; see session-06 log). Set as **Secret**-type (encrypted) bindings on the `sveltia-cms-auth` Cloudflare Worker, under its Production environment specifically — never in the Astro project, never committed.
 - A `.env.example` at the repo root documents the `PUBLIC_FORMSPREE_ENDPOINT` name with a placeholder value only.
 
@@ -86,7 +109,7 @@ Content lives in `src/content/`. Sveltia CMS's `admin/config.yml` defines the sa
 - src/content/testimonials/
 - src/content/faq/
 - src/pages/index.astro
-- src/components/ (Nav, Hero, WorkGrid, Process, Stats, Testimonials, FAQ, Contact, Footer)
+- src/components/ (Scrubber, Nav, Hero, WorkGrid, Process, Stats, Testimonials, FAQ, Contact, Footer — Scrubber added Session 8)
 - src/styles/tokens.css (design tokens above)
 - public/admin/index.html + public/admin/config.yml (Sveltia CMS dashboard, added Session 6; not a repo-root `admin/` — Astro's static build only copies `public/` verbatim into `dist/`, so anything outside it never reaches the live site. See session-06 log.)
 - session-logs/session-NN-slug.md
@@ -107,7 +130,7 @@ Every session ends by:
 1. Overwriting the "Current status" section below with: what's working now, what was completed this session, what's next.
 2. Writing `/session-logs/session-NN-short-slug.md` covering: goal, what was built, decisions/tradeoffs made, any deviation from the Build Plan, open issues, exact starting point for next session.
 3. Committing with a Conventional Commits message and pushing to GitHub.
-4. Confirming the site still works: via the local dev server (`npm run dev`) for Sessions 1–4, or via the live Cloudflare Pages URL from Session 5 onward.
+4. Confirming the site still works: via the local dev server (`npm run dev`) for Sessions 1–4, or via the live Cloudflare Workers URL from Session 5 onward.
 
 ### Keeping config in sync
 
@@ -121,12 +144,12 @@ See `/session-logs/` in the repo, one file per session, newest = current state. 
 
 (Overwrite this section at the end of every session — this is the only part of this file expected to change often.)
 
-**Session 7 complete — the site is fully built and polished.** All hard
-constraints from CLAUDE.md are met, the site has a real responsive pass
-(not just the mockup's single tablet breakpoint), SEO/social meta tags,
-and a non-technical publishing guide for Oubaid. Nothing structurally
-blocking remains; the only explicitly out-of-scope item is a custom
-domain (optional Session 8, only if Oubaid acquires one).
+**Session 8 complete — the live site now fully matches Mockup 7 ("Refined
+Slate/Blue Palette").** Refined light-mode tokens, the new hero copy, the
+scroll-driven scrubber bar, and a full light/dark theme toggle are all
+live. All hard constraints remain met; nothing structurally blocking
+remains. The only explicitly out-of-scope item is a custom domain
+(optional, only if Oubaid acquires one).
 
 **Live site:** https://oubaid-edits.oubaidbeldi.workers.dev
 **CMS dashboard:** https://oubaid-edits.oubaidbeldi.workers.dev/admin/
@@ -134,138 +157,73 @@ domain (optional Session 8, only if Oubaid acquires one).
 written for Oubaid — how to log in, edit each content type, and the
 required field per collection).
 
-**What was built this session:**
-- **Real mobile breakpoints, not just the mockup's one tablet cutoff.**
-  Every component already had the mockup's single `@media(max-width:900px)`
-  breakpoint (ported verbatim in Session 1), which turns 3/4-col grids
-  into 2-col but was never actually checked at phone widths — this
-  session added narrower breakpoints (mostly 560–600px and 420–480px)
-  across Hero, WorkGrid, Process, Stats, Testimonials, and Contact so
-  grids drop to 1-col, padding tightens, and text sizes step down on an
-  actual phone screen. Verified visually at 375px, 320px (the narrowest
-  common phone width), and the 768–900px tablet zone via Playwright
-  screenshots against the running dev server — no horizontal overflow at
-  any width tested.
-- **Fixed a real mobile bug: the nav's hamburger button did nothing.**
-  Since Session 1, `.mobile-toggle` existed with an `aria-label` but no
-  click handler — on any screen under 900px wide, the nav links
-  (`nav ul`) were hidden by CSS and there was no way to reach them except
-  the "Get in touch" CTA. Added a functional mobile menu: a full-viewport
-  takeover panel (not a small dropdown — see gotcha below) that opens on
-  tap, closes when a link is clicked, and keeps `aria-expanded` in sync.
-- **Gotcha: `backdrop-filter` on an ancestor breaks `position: fixed`
-  children.** First implementation nested the mobile menu inside
-  `<header>` and gave it `position: fixed; inset: 0`, expecting it to
-  cover the full viewport. It didn't — it collapsed to `header`'s own
-  ~74px shrink-wrapped height instead. Root cause: per spec, an element
-  with `backdrop-filter` (or `transform`, `filter`, `will-change`, etc.)
-  set to anything other than `none` becomes the **containing block** for
-  its `position: fixed` descendants, same as `transform` does — and
-  `header` already has `backdrop-filter: blur(10px)` for its translucent
-  sticky-nav look (Session 1). Confirmed via `getBoundingClientRect()` in
-  a live Playwright session (the panel's rect was `{top:0, bottom:120}`,
-  not `{top:0, bottom:812}`) before understanding why. Fixed by moving the
-  mobile menu to a sibling `<div id="mobileNavPanel">` outside `<header>`
-  entirely, so its `position: fixed` containing block is the viewport as
-  expected. Worth remembering if `backdrop-filter` or similar is ever
-  added to another ancestor of a fixed-position element.
-- **SEO + social meta tags** (`src/layouts/Layout.astro`, now takes
-  `title`/`description`/`image` props instead of just `title`): meta
-  description, canonical URL, Open Graph (`og:type`, `og:site_name`,
-  `og:title`, `og:description`, `og:url`, `og:image`), Twitter Card tags,
-  `theme-color`, and favicon `<link>` tags (the `favicon.ico`/`.svg`
-  files already existed in `public/` since Session 1's Astro scaffold but
-  were never actually linked from `<head>` — first time they're used).
-  Added `site: 'https://oubaid-edits.oubaidbeldi.workers.dev'` to
-  `astro.config.mjs` so `Astro.site` resolves for canonical/OG absolute
-  URLs. `og:image`/`twitter:image` are generated from the Site entry's
-  Photo via `getImage()` in `index.astro` — confirmed via `astro build`
-  that the static output resolves to a real hashed `/_astro/....jpg` path,
-  not the dev-only `/_image` transform endpoint (the same distinction
-  Session 5 hit with the hero photo).
-- **Accessibility fixes**, mostly found via a Lighthouse pass against the
-  static build (see below): added a `<main>` landmark around the page's
-  primary sections (Nav and Footer stay outside it); `aria-expanded` +
-  `aria-controls` on the FAQ accordion buttons; `aria-pressed` on the
-  Work niche filter buttons; `aria-label` on Contact's form fields (they
-  only had `placeholder`, which isn't a real accessible name); `aria-hidden`
-  on purely decorative elements (Contact's icon glyphs, Testimonials'
-  avatar circle, Process's watermark numerals); `role="img"` +
-  `aria-label` on Testimonials' star rating (a plain `div` can't take
-  `aria-label` without a role — first attempt failed Lighthouse's
-  `aria-prohibited-attr` audit); a more descriptive Hero photo alt text
-  (`Photo of {name}` instead of just `{name}`).
-- **YouTube embeds switched to `youtube-nocookie.com`** (privacy-enhanced
-  mode) instead of `youtube.com` — reduces third-party cookie-setting on
-  page load. Flagged by Lighthouse's Best Practices audit
-  (`inspector-issues`); a same-origin cookie notice from YouTube itself
-  still appears even on the nocookie domain (inherent to embedding any
-  YouTube content, not fixable from this repo) but this is still a real
-  improvement over the default domain.
-- **`PUBLISHING.md`** added at the repo root — a non-technical cheat
-  sheet for Oubaid: how to log into `/admin`, how editing/creating/
-  deleting entries works per collection, a one-line required-field
-  reference table for all seven collections, and an explicit note that
-  saves go live automatically within a minute or two (no separate
-  rebuild step) since every CMS save is a real GitHub commit that
-  Cloudflare's connected build auto-deploys.
+**What was built in Session 8** (see `session-logs/session-08-full-mockup7-style.md`
+for full detail):
+- Light-mode design tokens updated to the refined slate/blue values;
+  fixed two spots (`Hero.astro`'s kicker pill, `Contact.astro`'s
+  `.ci-icon`) that hardcoded the old `--blue-700` as text color on a
+  `--blue-100` background instead of using `--blue-600`.
+- Hero headline/subheadline updated to the new copy via
+  `src/content/site/site.md` ("Probably **your last video editor.**").
+- New `src/components/Scrubber.astro` — fixed 34px scroll-progress bar
+  pinned above the nav, present on every page in both themes. Nav's
+  sticky offset moved from `top: 0` to `top: 34px` to sit below it.
+- Full light/dark theme toggle: `data-theme="dark"` overrides in
+  `tokens.css` covering every token used site-wide, an inline SVG
+  sun/moon toggle button in `Nav.astro`, `prefers-color-scheme` default
+  with a `localStorage`-persisted manual override, and a synchronous
+  inline `<head>` script in `Layout.astro` to avoid a flash of the wrong
+  theme.
+- JetBrains Mono (Google Fonts) scoped to exactly four places: the
+  scrubber's label/timecode, `.eyebrow` labels, the hero `.kicker`, and
+  `.process-num` numerals.
+- Dark-mode audit caught two real hardcoded-color bugs (not present
+  before dark mode existed): Contact's `input`/`textarea`/`select` had no
+  explicit `color`, so it fell back to the browser default black — nearly
+  invisible on the dark-mode input background; and the contact form's
+  error-message red (`#c0362c`) failed WCAG AA contrast (3.3:1) against
+  the dark background. Fixed with an explicit `color: var(--ink)` on form
+  fields and a new `--error` token (light `#c0362c` / dark `#f87171`,
+  the latter re-verified at 4.5:1+).
+- **CLAUDE.md itself was corrupted going into this session** — the
+  working copy had the entire file duplicated and had reverted several
+  accuracy fixes from Sessions 2–7 (stale `src/content/config.ts` path,
+  repo-root `admin/` instead of `public/admin/`, wrong OAuth env var
+  names, "Cloudflare Pages" instead of the corrected Workers-static-assets
+  wording). Restored from the last commit (which had all of Sessions
+  1–7's real fixes intact) and re-applied only the intended Aug 21
+  design-direction updates on top, rather than trusting the corrupted
+  draft. Also deleted `mockup-1-cinematic-light.html` (already removed
+  from the working tree before this session started, now committed) since
+  Mockup 7 fully supersedes it.
 
-**Lighthouse pass** (mobile config, run via `npx lighthouse` against the
-static `astro build` output served by `astro preview`, not the dev
-server — the dev server's unbundled/unminified output wouldn't reflect
-what's actually deployed):
-- Before fixes: Performance 98, Accessibility 90, Best Practices 96, SEO 100.
-- After fixes: Performance 98, **Accessibility 96**, **Best Practices 96**
-  (same score, but the underlying YouTube-cookie note changed from
-  default-domain to nocookie-domain), SEO 100.
-- **Two audits deliberately left failing, both reviewed and judged not
-  worth "fixing" at the cost of correctness or design intent:**
-  - `color-contrast` on Process's watermark numerals (`#e8f0fe` on white,
-    ~1.14:1). This is CLAUDE.md's own confirmed design language — "4-card
-    process strip with **watermark numerals**" — a deliberately faint
-    decorative background number, now also marked `aria-hidden="true"`
-    this session to formalize that it's non-content. WCAG 1.4.3 itself
-    exempts "text that is purely decorative and not intended to be read
-    (e.g., watermark text)" from the contrast requirement — this is a
-    named example in the spec, not a workaround. Cranking up the color to
-    satisfy automated tooling would fight the confirmed mockup rather
-    than fix a real accessibility problem.
-  - `inspector-issues` (Cookie) on the two YouTube embeds — see above;
-    inherent to embedding YouTube content at all, and Work section video
-    embeds are an explicit, non-negotiable part of CLAUDE.md's chosen
-    stack ("Unlisted YouTube embeds for video samples").
-- Followed the instruction to fix real issues without chasing a perfect
-  score: the two `aria-prohibited-attr` and `landmark-one-main` findings
-  (both real, both cheap, both fixed above) were addressed; these two
-  were reviewed and consciously left as-is instead.
+**Established in earlier sessions (see session logs for full detail):**
+full responsive pass down to 320px including a working mobile nav
+(Session 7); SEO/OG/Twitter meta tags and favicon (Session 7); a11y
+fixes — `<main>` landmark, FAQ/filter ARIA state, form field labels,
+`youtube-nocookie.com` embeds (Session 7); `PUBLISHING.md` non-technical
+CMS cheat sheet at the repo root (Session 7); Sveltia CMS live at
+`/admin` with GitHub OAuth via the `sveltia-cms-auth` Worker (Session 6);
+Formspree contact form + first Cloudflare Workers deploy (Session 5).
+Lighthouse (mobile, Session 7): Performance 98 / Accessibility 96 / Best
+Practices 96 / SEO 100 — two findings deliberately left as-is and
+reviewed (Process's watermark-numeral contrast is WCAG-exempt decorative
+text; the YouTube cookie notice is inherent to embedding YouTube at all).
 
-**`/admin` on a phone-width viewport:** Sveltia CMS's own login screen
-renders responsively out of the box (single-column, full-width tappable
-buttons, verified via Playwright at 375px) — this is Sveltia's own UI,
-not something this repo's code controls beyond `config.yml`'s field
-definitions, which don't affect layout. Full editing-UI verification
-(post-login) on a real phone is still worth Oubaid double-checking
-firsthand next time he's editing content from his phone, since GitHub
-OAuth login can't be completed non-interactively in this environment.
+**Known gotchas, not bugs:** `astro dev` 404s on `/admin/` (needs the
+explicit `/admin/index.html` path) — `astro preview` and the live
+deployment both correctly resolve `/admin/` to a `200`. `backdrop-filter`
+on an ancestor becomes the containing block for `position: fixed`
+descendants (bit the mobile nav panel in Session 7; relevant again if any
+future fixed-position element gets nested under `header` or `#scrubber`).
 
-**Gotcha carried forward for future sessions:** `astro dev`'s dev server
-404s on `/admin/` (needs the explicit `/admin/index.html` path) — this is
-a dev-server-only quirk in how it resolves directory-index requests for
-`public/`-copied static files; `astro preview` (serving the real
-`dist/` build) and the live Cloudflare deployment both correctly resolve
-`/admin/` to `/admin/index.html` with a `200`, matching Session 6's
-confirmed live behavior. Not a bug, just don't be alarmed by a 404 on
-`localhost:4321/admin/` specifically during `npm run dev`.
-
-**Not yet started:** custom domain (optional Session 8, only if Oubaid
-has acquired one by then). No other explicitly-deferred items remain.
+**Not yet started:** custom domain (optional, only if Oubaid acquires
+one). No other explicitly-deferred items remain.
 
 **Auth Worker:** https://sveltia-cms-auth.oubaidbeldi.workers.dev (Oubaid's
 fork of github.com/sveltia/sveltia-cms-auth)
 
-**Optional cleanup, not blocking, carried forward from Sessions 5–6:**
-the main site's Worker may still list unused `env.SESSION`/`env.IMAGES`
-bindings from Session 5's broken first deploy attempt, and the
-`sveltia-cms-auth` fork has a handful of throwaway troubleshooting
-commits from Session 6. Both harmless, no cost, purely cosmetic
-tidiness if Oubaid ever wants to clean them up.
+**Optional cleanup, not blocking:** the main site's Worker may still list
+unused `env.SESSION`/`env.IMAGES` bindings from Session 5's broken first
+deploy attempt, and the `sveltia-cms-auth` fork has a handful of
+throwaway troubleshooting commits from Session 6. Both harmless.

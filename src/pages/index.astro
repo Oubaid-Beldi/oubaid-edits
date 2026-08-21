@@ -2,6 +2,7 @@
 import { getImage } from "astro:assets";
 import { getEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
+import Scrubber from "../components/Scrubber.astro";
 import Nav from "../components/Nav.astro";
 import Hero from "../components/Hero.astro";
 import WorkGrid from "../components/WorkGrid.astro";
@@ -26,6 +27,7 @@ const description =
   description={description}
   image={ogImage?.src}
 >
+  <Scrubber />
   <Nav />
   <main>
     <Hero />
