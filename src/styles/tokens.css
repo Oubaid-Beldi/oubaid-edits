@@ -1,14 +1,14 @@
 :root {
-  --paper: #f7f8fb;
-  --ink: #0d1526;
-  --ink-soft: #4b5568;
-  --blue-900: #0b1a33;
-  --blue-700: #12409e;
-  --blue-600: #1a56db;
-  --blue-100: #e8f0fe;
-  --blue-50: #f4f8ff;
+  --paper: #f8fafc;
+  --ink: #0f172a;
+  --ink-soft: #64748b;
+  --blue-900: #0f172a;
+  --blue-700: #1d4ed8;
+  --blue-600: #2563eb;
+  --blue-100: #dbeafe;
+  --blue-50: #eff6ff;
   --white: #ffffff;
-  --line: #e3e7ef;
+  --line: #e2e8f0;
   --radius: 16px;
   --radius-btn: 10px;
   --radius-pill: 999px;
